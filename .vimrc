@@ -35,9 +35,6 @@ noremap dd gg
 noremap df ge
 noremap dF gE 
 
-" Use the elflord color scheme.
-colors elflord
-
 " Enable syntax highlighting.
 syntax on
 
