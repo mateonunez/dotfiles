@@ -47,3 +47,6 @@ set mouse=a
 
 " Enable persistent undo.
 set undofile
+
+" Set uu (ii in normal layout) as <esc> to exit insert mode and enter on normal mode.
+inoremap uu <Esc>
