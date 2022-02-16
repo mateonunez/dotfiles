@@ -33,10 +33,7 @@ noremap U I
 noremap Y O
 noremap dd gg
 noremap df ge
-noremap dF gE 
-
-" Enable syntax highlighting.
-syntax on
+noremap dF gE
 
 " Store temporary files in .vim to keep the working directories clean.
 set directory=~/.vim/swap
@@ -48,5 +45,11 @@ set mouse=a
 " Enable persistent undo.
 set undofile
 
-" Set uu (ii in normal layout) as <esc> to exit insert mode and enter on normal mode.
+" Increase history for search and command line entries.
+set history=10000
+
+" Set backspace.
+:set backspace=indent,eol,start
+
+" Set uu (ii in normal layout) as <esc>
 inoremap uu <Esc>
