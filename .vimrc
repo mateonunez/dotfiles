@@ -35,21 +35,21 @@ noremap dd gg
 noremap df ge
 noremap dF gE
 
+" Essentials
+set number
+set title
+set autoindent
+set showcmd
+set cmdheight=1
+set shiftwidth=2
+set mouse=a
+set undofile
+set backspace=indent,eol,start
+
 " Store temporary files in .vim to keep the working directories clean.
 set directory=~/.vim/swap
 set undodir=~/.vim/undo
-
-" Enable mouse support.
-set mouse=a
-
-" Enable persistent undo.
-set undofile
-
-" Increase history for search and command line entries.
 set history=10000
 
-" Set backspace.
-:set backspace=indent,eol,start
-
-" Set uu (ii in normal layout) as <esc>
-inoremap uu <Esc>
+" Set yy to exit to exit from insert mode
+inoremap yy <Esc>
