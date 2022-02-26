@@ -53,3 +53,16 @@ set history=10000
 
 " Set yy to exit to exit from insert mode
 inoremap yy <Esc>
+
+" Use Windows clipboard to copy and to paste
+set clipboard=unnamed
+
+" Use Y to copy into clipboard
+nnoremap Y "+y
+vnoremap Y "+y
+nnoremap yY ^"+y$
+
+" Use D to cut into clipboard
+nnoremap D "+d
+vnoremap D "+d
+nnoremap dD ^"+d$
