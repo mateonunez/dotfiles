@@ -1,3 +1,4 @@
+// Place your key bindings in this file to override the defaults
 [
   {
     "key": "ctrl+alt+,",
@@ -10,12 +11,12 @@
     "when": "terminalFocus"
   },
   {
-    "key": "ctrl+shift+,",
+    "key": "ctrl+cmd+,",
     "command": "workbench.action.terminal.focusPreviousPane",
     "when": "terminalFocus"
   },
   {
-    "key": "ctrl+shift+.",
+    "key": "ctrl+cmd+.",
     "command": "workbench.action.terminal.focusNextPane",
     "when": "terminalFocus"
   },
@@ -31,6 +32,25 @@
   {
     "key": "ctrl+r",
     "command": "-workbench.action.openRecent"
+  },
+  {
+    "key": "ctrl+alt+h",
+    "command": "workbench.action.terminal.toggleTerminal"
+  },
+  {
+    "key": "ctrl+alt+n",
+    "when": "terminalFocus",
+    "command": "workbench.action.terminal.new"
+  },
+  {
+    "key": "ctrl+alt+e",
+    "when": "terminalFocus",
+    "command": "workbench.action.focusActiveEditorGroup"
+  },
+  {
+    "key": "ctrl+alt+t",
+    "when": "editorFocus",
+    "command": "workbench.action.terminal.focus"
   },
   {
     "key": "ctrl+shift+e",
