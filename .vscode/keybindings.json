@@ -11,12 +11,12 @@
     "when": "terminalFocus"
   },
   {
-    "key": "ctrl+cmd+,",
+    "key": "ctrl+win+,",
     "command": "workbench.action.terminal.focusPreviousPane",
     "when": "terminalFocus"
   },
   {
-    "key": "ctrl+cmd+.",
+    "key": "ctrl+win+.",
     "command": "workbench.action.terminal.focusNextPane",
     "when": "terminalFocus"
   },
@@ -34,32 +34,52 @@
     "command": "-workbench.action.openRecent"
   },
   {
-    "key": "ctrl+alt+h",
+    "key": "ctrl+h",
     "command": "workbench.action.terminal.toggleTerminal"
   },
   {
-    "key": "ctrl+alt+n",
+    "key": "alt+n",
     "when": "terminalFocus",
     "command": "workbench.action.terminal.new"
   },
   {
-    "key": "ctrl+alt+e",
+    "key": "alt+e",
     "when": "terminalFocus",
     "command": "workbench.action.focusActiveEditorGroup"
   },
   {
-    "key": "ctrl+alt+t",
+    "key": "alt+t",
     "when": "editorFocus",
     "command": "workbench.action.terminal.focus"
   },
   {
-    "key": "ctrl+shift+e",
+    "key": "alt+shift+e",
     "when": "terminalFocus",
     "command": "workbench.action.terminal.moveToEditor"
   },
   {
-    "key": "ctrl+shift+t",
+    "key": "alt+shift+t",
     "when": "terminalFocus",
     "command": "workbench.action.terminal.moveToTerminalPanel"
+  },
+  {
+    "key": "alt+e", // alt+k in querty layout
+    "when": "editorFocus",
+    "command": "workbench.action.nextEditorInGroup"
+  },
+  {
+    "key": "alt+n", // alt+j in querty layout
+    "when": "editorFocus",
+    "command": "workbench.action.previousEditorInGroup"
+  },
+  {
+    "key": "ctrl+alt+e", // ctrl+alt+k in querty layout
+    "when": "editorFocus",
+    "command": "workbench.action.focusNextGroup"
+  },
+  {
+    "key": "ctrl+alt+n", // ctrl+alt+j in querty layout
+    "when": "editorFocus",
+    "command": "workbench.action.focusPreviousGroup"
   }
 ]
