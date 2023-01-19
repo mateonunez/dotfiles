@@ -51,9 +51,6 @@ set directory=~/.vim/swap
 set undodir=~/.vim/undo
 set history=10000
 
-" Set yy to exit to exit from insert mode
-inoremap yy <Esc>
-
 " Use Windows clipboard to copy and to paste
 set clipboard=unnamed
 
