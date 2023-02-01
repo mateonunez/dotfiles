@@ -44,12 +44,10 @@
   },
   {
     "key": "ctrl+e",
-    "when": "terminalFocus",
     "command": "workbench.action.focusActiveEditorGroup"
   },
   {
     "key": "ctrl+t",
-    "when": "editorFocus",
     "command": "workbench.action.terminal.focus"
   },
   {
@@ -73,13 +71,13 @@
     "command": "workbench.action.previousEditorInGroup"
   },
   {
-    "key": "ctrl+alt+e", // ctrl+alt+k in querty layout
+    "key": "alt+i", // ctrl+alt+k in querty layout
     "when": "editorFocus",
     "command": "workbench.action.focusNextGroup"
   },
   {
-    "key": "ctrl+alt+n", // ctrl+alt+j in querty layout
+    "key": "alt+h", // ctrl+alt+j in querty layout
     "when": "editorFocus",
     "command": "workbench.action.focusPreviousGroup"
-  }
+  },
 ]
