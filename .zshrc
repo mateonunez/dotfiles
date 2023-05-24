@@ -83,6 +83,7 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -106,14 +107,13 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+#
 
 # Autosuggestions
 bindkey '^ ' autosuggest-accept
 
 # Aliases
+alias k="kubectl"
 alias ~='cd ~'
 alias ..='cd ..'
 alias c='clear'
@@ -121,7 +121,19 @@ alias cl='clear ; ls -lah'
 alias cll='clear ; ls -l'
 alias ct='clear ; npm run test'
 alias dc='docker compose'
-alias k='kubectl'
 alias n='node'
 alias p='python3'
 alias t='npm run test'
+alias vim='nvim'
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+# nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
