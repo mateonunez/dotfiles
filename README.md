@@ -1,5 +1,7 @@
 # 📁 dotfiles
 
+<img width="1512" alt="image" src="https://github.com/mateonunez/dotfiles/assets/11861080/86512709-8141-464a-874e-c138849c11c6">
+
 ## ✨ What is this?
 
 This is my personal dotfiles repository. It contains all the configuration files for my system.
