@@ -15,6 +15,7 @@ noremap s d
 noremap t f
 noremap u i
 noremap y o
+
 noremap D G
 noremap E K
 noremap F E
@@ -31,19 +32,23 @@ noremap S D
 noremap T F
 noremap U I
 noremap Y O
+
 noremap dd gg
 noremap df ge
 noremap dF gE
 
-set mouse=a
-set clipboard=unnamed
+noremap jj yy
+noremap jf yf
+noremap jF yF
 
-" Use Y to copy into clipboard
+noremap gg tt
+noremap gG tT
+
 nnoremap Y "+y
 vnoremap Y "+y
 nnoremap yY ^"+y$
 
-" Use D to cut into clipboard
 nnoremap D "+d
 vnoremap D "+d
 nnoremap dD ^"+d$
+
