@@ -15,6 +15,7 @@ noremap s d
 noremap t f
 noremap u i
 noremap y o
+
 noremap D G
 noremap E K
 noremap F E
@@ -31,9 +32,17 @@ noremap S D
 noremap T F
 noremap U I
 noremap Y O
+
 noremap dd gg
 noremap df ge
 noremap dF gE
+
+noremap jj yy
+noremap jf yf
+noremap jF yF
+
+noremap gg tt
+noremap gG tT
 
 " Essentials
 set number
