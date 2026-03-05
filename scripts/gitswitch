@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+# gitswitch - Switch between git configuration profiles
+#
+# Profiles are discovered from ~/.gitconfig.<name> files.
+# The active profile is tracked via a symlink ~/.gitconfig.active
+# and a plain-text file ~/.git_profile (used by shell prompts).
+#
+# Usage:
+#   gitswitch init           Set up ~/.gitconfig to use profile includes
+#   gitswitch use <profile>  Switch to a named profile
+#   gitswitch list           List available profiles
+#   gitswitch current        Show the active profile
+#   gitswitch help           Show this help
+
+set -euo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+readonly GIT_CONFIG_DIR="${HOME}"
+readonly GIT_CONFIG_MAIN="${HOME}/.gitconfig"
+readonly GIT_CONFIG_ACTIVE="${HOME}/.gitconfig.active"
+readonly GIT_PROFILE_FILE="${HOME}/.git_profile"
+
+# ── helpers ──────────────────────────────────────────────────────────────────
+
+_red()    { printf '\033[31m%s\033[0m' "$*"; }
+_green()  { printf '\033[32m%s\033[0m' "$*"; }
+_yellow() { printf '\033[33m%s\033[0m' "$*"; }
+_bold()   { printf '\033[1m%s\033[0m' "$*"; }
+
+_die() { printf '%s: %s\n' "$(_red "$SCRIPT_NAME")" "$*" >&2; exit 1; }
+_info() { printf '%s\n' "$*"; }
+
+# Validate profile name: alphanumeric, dash, underscore only
+_validate_name() {
+  local name="$1"
+  if [[ ! "$name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    _die "invalid profile name '$(_bold "$name")' — only alphanumeric, dash and underscore are allowed"
+  fi
+}
+
+# Return current profile name, or "(none)" if not set
+_current_profile() {
+  if [[ -s "$GIT_PROFILE_FILE" ]]; then
+    cat "$GIT_PROFILE_FILE"
+  else
+    echo "(none)"
+  fi
+}
+
+# Resolve the path of a profile config file
+_profile_path() {
+  echo "${GIT_CONFIG_DIR}/.gitconfig.${1}"
+}
+
+# ── commands ─────────────────────────────────────────────────────────────────
+
+cmd_list() {
+  local current
+  current=$(_current_profile)
+  local found=0
+
+  for f in "${GIT_CONFIG_DIR}"/.gitconfig.*; do
+    # Only real files, skip symlinks (the .active link) and .bak
+    [[ -f "$f" && ! -L "$f" ]] || continue
+    local name="${f##*/.gitconfig.}"
+    [[ "$name" == "bak" ]] && continue
+
+    found=1
+    if [[ "$name" == "$current" ]]; then
+      printf '  %s %s\n' "$(_green "▶ $name")" "(active)"
+    else
+      printf '    %s\n' "$name"
+    fi
+  done
+
+  if [[ $found -eq 0 ]]; then
+    _info "No profiles found. Create files named ~/.gitconfig.<name> to add profiles."
+  fi
+}
+
+cmd_current() {
+  local profile
+  profile=$(_current_profile)
+
+  if [[ "$profile" == "(none)" ]]; then
+    _info "No active profile. Run '$(_bold "gitswitch init")' to set up."
+    return 0
+  fi
+
+  local target
+  target=$(_profile_path "$profile")
+
+  printf 'Profile : %s\n' "$(_green "$profile")"
+  if [[ -f "$target" ]]; then
+    printf 'Name    : %s\n' "$(git config --file "$target" user.name  2>/dev/null || echo 'N/A')"
+    printf 'Email   : %s\n' "$(git config --file "$target" user.email 2>/dev/null || echo 'N/A')"
+  fi
+}
+
+cmd_use() {
+  local profile="${1:-}"
+  [[ -n "$profile" ]] || _die "'use' requires a profile name — run '$SCRIPT_NAME list' to see available profiles"
+  _validate_name "$profile"
+
+  local target
+  target=$(_profile_path "$profile")
+
+  [[ -f "$target" ]] || {
+    printf '%s: profile %s not found (expected file at %s)\n' \
+      "$(_red "$SCRIPT_NAME")" "$(_bold "$profile")" "$target" >&2
+    printf '\nAvailable profiles:\n' >&2
+    cmd_list >&2
+    exit 1
+  }
+
+  # Ensure ~/.gitconfig is configured to use includes
+  _ensure_include_setup
+
+  # Atomically update the symlink
+  ln -sfn "$target" "${GIT_CONFIG_ACTIVE}.tmp"
+  mv -f "${GIT_CONFIG_ACTIVE}.tmp" "$GIT_CONFIG_ACTIVE"
+
+  # Record the active profile name (used by shell prompts)
+  printf '%s' "$profile" > "$GIT_PROFILE_FILE"
+
+  local git_name git_email
+  git_name=$(git config --file "$target"  user.name  2>/dev/null || echo 'N/A')
+  git_email=$(git config --file "$target" user.email 2>/dev/null || echo 'N/A')
+
+  printf '%s Switched to profile: %s\n' "$(_green "✓")" "$(_bold "$profile")"
+  printf '  Name  : %s\n' "$git_name"
+  printf '  Email : %s\n' "$git_email"
+
+  # Tell tmux to redraw the status bar immediately
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux refresh-client -S 2>/dev/null || true
+  fi
+}
+
+cmd_init() {
+  # Already initialised?
+  if grep -q 'gitconfig\.active' "$GIT_CONFIG_MAIN" 2>/dev/null; then
+    _info "Already initialised."
+    cmd_current
+    return 0
+  fi
+
+  # Back up the current gitconfig
+  if [[ -f "$GIT_CONFIG_MAIN" ]]; then
+    cp -n "$GIT_CONFIG_MAIN" "${GIT_CONFIG_MAIN}.bak" \
+      && _info "Backed up ~/.gitconfig → ~/.gitconfig.bak"
+  fi
+
+  # Try to detect which profile matches the current user.email
+  local detected=""
+  if [[ -f "${GIT_CONFIG_MAIN}.bak" ]]; then
+    local current_email
+    current_email=$(git config --file "${GIT_CONFIG_MAIN}.bak" user.email 2>/dev/null || true)
+    if [[ -n "$current_email" ]]; then
+      for f in "${GIT_CONFIG_DIR}"/.gitconfig.*; do
+        [[ -f "$f" && ! -L "$f" ]] || continue
+        local cname="${f##*/.gitconfig.}"
+        [[ "$cname" == "bak" ]] && continue
+        local profile_email
+        profile_email=$(git config --file "$f" user.email 2>/dev/null || true)
+        if [[ "$profile_email" == "$current_email" ]]; then
+          detected="$cname"
+          break
+        fi
+      done
+    fi
+  fi
+
+  # Write the include-based gitconfig
+  # Note: git expands ~ in [include] paths (git >= 1.7.10)
+  printf '[include]\n\tpath = ~/.gitconfig.active\n' > "$GIT_CONFIG_MAIN"
+  _info "Wrote include-based ~/.gitconfig"
+
+  if [[ -n "$detected" ]]; then
+    cmd_use "$detected"
+    _info "(auto-detected matching profile: $(_bold "$detected"))"
+  else
+    _info ""
+    _info "Available profiles:"
+    cmd_list
+    _info ""
+    _info "Run '$(_bold "$SCRIPT_NAME use <profile>")' to activate one."
+  fi
+}
+
+_ensure_include_setup() {
+  if ! grep -q 'gitconfig\.active' "$GIT_CONFIG_MAIN" 2>/dev/null; then
+    _die "~/.gitconfig is not configured for profile switching.\nRun '$SCRIPT_NAME init' first."
+  fi
+}
+
+cmd_help() {
+  cat <<EOF
+$(_bold "$SCRIPT_NAME") — switch git configuration profiles
+
+$(_bold USAGE)
+  $SCRIPT_NAME init              Set up ~/.gitconfig to use profile includes
+  $SCRIPT_NAME use <profile>     Switch to a named git profile
+  $SCRIPT_NAME list              List all available profiles
+  $SCRIPT_NAME current           Show the active profile
+  $SCRIPT_NAME help              Show this help
+
+$(_bold PROFILES)
+  Profiles are discovered automatically from files named:
+    ~/.gitconfig.<name>
+
+  Examples:
+    ~/.gitconfig.personal
+    ~/.gitconfig.work
+    ~/.gitconfig.whatwapp
+
+$(_bold EXAMPLES)
+  $SCRIPT_NAME init
+  $SCRIPT_NAME use personal
+  $SCRIPT_NAME list
+  $SCRIPT_NAME current
+EOF
+}
+
+# ── dispatch ─────────────────────────────────────────────────────────────────
+
+case "${1:-help}" in
+  init)    cmd_init ;;
+  use)     cmd_use "${2:-}" ;;
+  list|ls) cmd_list ;;
+  current) cmd_current ;;
+  help|--help|-h) cmd_help ;;
+  *)
+    printf '%s: unknown command %s\n\n' "$(_red "$SCRIPT_NAME")" "$(_bold "${1}")" >&2
+    cmd_help >&2
+    exit 1
+    ;;
+esac

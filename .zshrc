@@ -77,7 +77,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions wakatime)
+plugins=(git zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -124,12 +124,26 @@ alias dc='docker compose'
 alias n='node'
 alias p='python3'
 alias t='npm run test'
-alias vim='nvim'
+alias c_m='cd ~/source/mateonunez'
+alias gs='git status'
+alias gbc='git branch | cat'
+alias gpn='git push --no-verify'
+alias gpfn='git push --force --no-verify'
+alias gcnm='git commit -n -m'
+alias gcsnm='git commit -S -n -m'
+alias cla='claude'
+alias gsw='gitswitch'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# Git profile switching (gitswitch)
+[[ ! -f ~/.dotfiles/shell/git-profile.zsh ]] || source ~/.dotfiles/shell/git-profile.zsh
+
 # nvm
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+# Created by `pipx` on 2026-03-02 09:55:26
+export PATH="$PATH:/Users/mateonunez/.local/bin"
