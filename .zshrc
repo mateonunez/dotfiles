@@ -124,6 +124,7 @@ alias dc='docker compose'
 alias n='node'
 alias p='python3'
 alias t='npm run test'
+alias c_w='cd ~/source/whatwapp'
 alias c_m='cd ~/source/mateonunez'
 alias gs='git status'
 alias gbc='git branch | cat'
@@ -131,7 +132,7 @@ alias gpn='git push --no-verify'
 alias gpfn='git push --force --no-verify'
 alias gcnm='git commit -n -m'
 alias gcsnm='git commit -S -n -m'
-alias cla='claude'
+alias ce='claude'
 alias gsw='gitswitch'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -147,3 +148,18 @@ export NVM_DIR="$HOME/.nvm"
 
 # Created by `pipx` on 2026-03-02 09:55:26
 export PATH="$PATH:/Users/mateonunez/.local/bin"
+export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
+
+# Tmux colors
+TERM=screen-256color
+
+# OpenFang
+export PATH=/Users/mateonunez/.openfang/bin:$PATH
+. "$HOME/.cargo/env"
+
+# bun completions
+[ -s "/Users/mateonunez/.bun/_bun" ] && source "/Users/mateonunez/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

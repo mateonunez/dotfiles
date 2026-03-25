@@ -30,9 +30,9 @@
   "editor.stickyScroll.maxLineCount": 10,
   "editor.hover.sticky": true,
   "editor.codeActionsOnSave": {
-      "source.fixAll": false,
-      "source.fixAll.eslint": true, // this allows ESLint to auto fix on save
-      "source.organizeImports": false
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
   },
   "editor.showFoldingControls": "always",
   "explorer.confirmDelete": false,
@@ -97,7 +97,7 @@
       "editor.suggest.snippetsPreventQuickSuggestions": false,
       "editor.suggestSelection": "first",
       "editor.tabCompletion": "onlySnippets",
-      "editor.wordBasedSuggestions": false
+      "editor.wordBasedSuggestions": "off"
   },
   "[json]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
