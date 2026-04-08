@@ -8,6 +8,11 @@ fi
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -163,3 +168,8 @@ export PATH=/Users/mateonunez/.openfang/bin:$PATH
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+# Added by Antigravity
+export PATH="/Users/mateonunez/.antigravity/antigravity/bin:$PATH"
+
+# Added by Antigravity
+export PATH="/Users/mateonunez/.antigravity/antigravity/bin:$PATH"
