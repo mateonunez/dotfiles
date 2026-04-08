@@ -382,10 +382,10 @@ set -g @tpm-install 'C-I'   # free up prefix+I for pane resize (see resize-pane 
 
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
-set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15'
 set -g @resurrect-capture-pane-contents 'on'
-set -g @resurrect-strategy-nvim 'session'
+# Auto restore
+# set -g @continuum-restore 'on'
 
 # vimium-like copy hints (rust, fast) — <prefix> + F
 set -g @plugin 'fcsonline/tmux-thumbs'
