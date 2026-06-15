@@ -484,8 +484,8 @@ Default triggers (`ys`/`cs`/`ds`) all collide with Colemak remaps, so everything
 
 | Key | Action |
 |-----|--------|
-| `<leader>w` | Open search & replace panel (`w` = workspace, not remapped) |
-| `<leader>W` | Open with word under cursor pre-filled |
+| `<leader>sr` | Open search & replace panel |
+| `<leader>sw` | Open with word under cursor pre-filled |
 
 ---
 

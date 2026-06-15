@@ -16,6 +16,7 @@ return {
         { "<leader>m", group = "harpoon" },
         { "<leader>w", group = "window (splits)" },
         { "<leader>t", group = "tabs" },
+        { "<leader>s", group = "search / replace" },
         { "]",         group = "next" },
         { "[",         group = "prev" },
       },
