@@ -1,0 +1,5 @@
+# Local Claude Code settings (machine-specific, not shared)
+.claude/
+
+# Editor scratch / netrw history
+.netrwhist

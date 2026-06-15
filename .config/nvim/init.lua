@@ -1,24 +1,9 @@
-require "core"
+-- Leader must be set before any <leader> mappings are created. config.keymaps
+-- (and lazy plugin specs) define <leader> maps, so set it here at the very top —
+-- otherwise those maps bind under the default leader (\) instead of <Space>.
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
-local custom_init_path = vim.api.nvim_get_runtime_file("lua/custom/init.lua", false)[1]
-
-if custom_init_path then
-  dofile(custom_init_path)
-end
-
-require("core.utils").load_mappings()
-
-local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
-
--- bootstrap lazy.nvim!
-if not vim.loop.fs_stat(lazypath) then
-  require("core.bootstrap").gen_chadrc_template()
-  require("core.bootstrap").lazy(lazypath)
-end
-
-dofile(vim.g.base46_cache .. "defaults")
-vim.opt.rtp:prepend(lazypath)
-require "plugins"
-
--- This could be an alias from the `.vimrc` file
-vim.cmd [[source ~/.config/nvim/lua/custom/keybindings.vim]]
+require("config.options")
+require("config.keymaps")
+require("config.lazy")

@@ -89,15 +89,18 @@ $ ln -s ~/.somewhere/.tmux.conf.local ~/.tmux.conf.local
 
 ## 📦 nvim
 
-The `nvim` configuration is based on: [NvChad](https://nvchad.com/).
+The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.nvim), with Colemak-aware keymaps and one file per plugin.
 
-The most important thing is that the `/config/nvim/init.lua` file loads, at the end of the file, the `keymaps.vim` configuration. It's basically the same file of `.vimrc` config but without the `vim` configuration.
+📖 **Full guide → [.config/nvim/README.md](.config/nvim/README.md)** — install, the Colemak key map, the complete keybinding cheatsheet, and per-plugin notes.
 
-```lua
-vim.cmd [[source ~/.config/nvim/lua/custom/keybindings.vim]]
+```bash
+$ git clone https://github.com/mateonunez/dotfiles ~/.somewhere
+$ ln -s ~/.somewhere/.config/nvim ~/.config/nvim
 ```
 
-> This is still a work in progress.
+> Back up your existing `~/.config/nvim` first. On first launch lazy.nvim installs every plugin.
+
+---
 
 ## 📦 vscode
 
