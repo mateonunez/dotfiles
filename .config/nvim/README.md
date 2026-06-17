@@ -23,6 +23,7 @@ The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.n
         ├── surround.lua
         ├── grug-far.lua
         ├── codecompanion.lua
+        ├── codediff.lua
         ├── lsp.lua
         ├── blink.lua
         ├── lualine.lua
@@ -124,6 +125,7 @@ Groups shown in the popup:
 | Prefix | Group |
 |--------|-------|
 | `<leader>c` | code / LSP |
+| `<leader>d` | diff (codediff) |
 | `<leader>f` | find (telescope) |
 | `<leader>h` | git hunks |
 | `<leader>x` | trouble / diagnostics |
@@ -135,6 +137,9 @@ Groups shown in the popup:
 ---
 
 ### Full keymap cheatsheet
+
+> **`]` / `[` navigation at a glance:**
+> `]h`/`[h` = git hunk · `]x`/`[x` = diagnostic (LSP buf) or conflict (diff buf) · `]e`/`[e` = function · `]c`/`[c` = class · `]v`/`[v` = diff hunk · `]m`/`[m` = harpoon · `]f`/`[f` = file (codediff)
 
 #### File explorer — Neo-tree
 | Key | Action |
@@ -499,3 +504,83 @@ Default triggers (`ys`/`cs`/`ds`) all collide with Colemak remaps, so everything
 | `<leader>cC` | Open actions menu |
 
 Both bindings work in normal and visual mode — select code first to send it as context.
+
+---
+
+### CodeDiff — VSCode-style diff view
+
+[codediff.nvim](https://github.com/esmuellert/codediff.nvim) — two-tier diff highlighting (line-level + character-level), side-by-side and inline layouts, git explorer, file history, and merge conflict resolution. Uses the same diff engine as VSCode.
+
+> **Colemak note:** All keymaps inside the diff window are **buffer-local**, so physical keys work correctly — they override the global noremap (same rule as Neo-tree). `]v`/`[v` are used for hunk navigation to keep `]c`/`[c` free for treesitter class jumps.
+
+**Open CodeDiff** (global, normal mode):
+
+| Key | Action |
+|-----|--------|
+| `<leader>dg` | Open git diff explorer (changed files) |
+| `<leader>df` | Diff current file vs HEAD |
+| `<leader>dh` | File history (commit log) |
+
+**Commands:**
+
+| Command | Action |
+|---------|--------|
+| `:CodeDiff` | Git status explorer |
+| `:CodeDiff HEAD~5` | Compare working tree vs 5 commits ago |
+| `:CodeDiff main...` | PR-style diff (only your branch changes) |
+| `:CodeDiff file HEAD` | Current file vs HEAD |
+| `:CodeDiff history` | Per-commit history viewer |
+| `:CodeDiff --inline` | Force inline (unified) layout |
+
+**Inside diff view — navigation:**
+
+| Key | Action |
+|-----|--------|
+| `]v` / `[v` | Next / prev hunk |
+| `]f` / `[f` | Next / prev file (explorer/history) |
+| `t` | Toggle side-by-side ↔ inline layout |
+| `gc` | Toggle compact mode (fold unchanged regions) |
+| `g?` | Show help (all available keys) |
+| `q` | Close diff tab |
+
+**Inside diff view — staging / hunks:**
+
+| Key | Action |
+|-----|--------|
+| `-` | Stage / unstage current file |
+| `<leader>hs` | Stage hunk under cursor |
+| `<leader>hu` | Unstage hunk under cursor |
+| `<leader>hr` | Discard hunk (working tree only) |
+| `do` | Get change from other buffer (vimdiff-style) |
+| `dp` | Put change to other buffer |
+| `ih` | Textobject: select hunk (`vih` = visual, `yih` = yank) |
+
+**Explorer panel** (inside the file list):
+
+| Key | Action |
+|-----|--------|
+| `<CR>` | Open diff for selected file |
+| `K` | Hover: preview file diff |
+| `R` | Refresh git status |
+| `i` | Toggle list ↔ tree view |
+| `S` / `U` | Stage all / unstage all |
+| `X` | Discard changes (restore file) |
+| `<leader>b` | Toggle explorer visibility |
+| `<leader>de` | Focus explorer panel |
+| `gm` | Align moved code blocks across panes |
+
+**Merge conflict resolution** (`<leader>d` group, active in conflict diff view):
+
+| Key | Action |
+|-----|--------|
+| `<leader>di` | Accept incoming (theirs) |
+| `<leader>dc` | Accept current (ours) |
+| `<leader>db` | Accept both |
+| `<leader>dx` | Discard (keep base) |
+| `<leader>dI` | Accept ALL incoming |
+| `<leader>dC` | Accept ALL current |
+| `<leader>dB` | Accept ALL both |
+| `<leader>dX` | Discard ALL |
+| `]x` / `[x` | Next / prev conflict |
+
+> Conflict keymaps moved off `<leader>c` (our code/LSP group) to `<leader>d`. `]x`/`[x` are buffer-local in the conflict view and don't shadow LSP diagnostic jumps (which are buffer-local to LSP buffers).
