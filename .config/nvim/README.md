@@ -28,7 +28,10 @@ The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.n
         ├── blink.lua
         ├── lualine.lua
         ├── gitsigns.lua
-        └── trouble.lua
+        ├── trouble.lua
+        ├── dap.lua               # debugging (nvim-dap + dap-ui)
+        ├── lint.lua              # linters (nvim-lint: eslint_d/ruff/…)
+        └── autotag.lua           # auto-close JSX/HTML tags
 ```
 
 ### How to run it?
@@ -130,6 +133,7 @@ Groups shown in the popup:
 | `<leader>f` | find (telescope) |
 | `<leader>h` | git hunks |
 | `<leader>x` | trouble / diagnostics |
+| `<leader>v` | debug (DAP) |
 | `<leader>m` | harpoon |
 | `<leader>w` | window (splits) |
 | `<leader>t` | tabs |
@@ -158,20 +162,25 @@ Groups shown in the popup:
 | `<leader>w-` | Split below (mirrors tmux `prefix -`) |
 | `<leader>w\` | Split right (mirrors tmux `prefix _`) |
 | `<leader>wq` | Close window |
-| `<leader>wH` / `<leader>wI` | Resize narrower / wider, one step (mirrors tmux `prefix H/I`) |
-| `<leader>wN` / `<leader>wE` | Resize taller / shorter, one step (mirrors tmux `prefix N/E`) |
-| `<leader>wr` | **Resize submode** — then tap `h`/`i` (width), `n`/`e` (height), `=` equalize; `q`/`<Esc>` exits |
+| `<leader>wH` / `<leader>wO` | Resize **left** (wider) / **right** (narrower), one step |
+| `<leader>wI` / `<leader>wN` | Resize **up** (taller) / **bottom** (shorter), one step |
+| `<leader>wr` | **Resize submode** — then tap `h`←wider `o`→narrower `i`↑taller `n`↓shorter, `=` equalize; `q`/`<Esc>` exits |
 | `<leader>w=` | Equalize all windows |
 
-> **Why a submode?** Each `<leader>wH/wI/wN/wE` is a one-shot resize — you'd re-press the whole chord every step. `<leader>wr` enters a sticky mode (the Neovim equivalent of tmux's `-r` repeat) so you press `<leader>w` once and then tap the bare Colemak nav keys to keep resizing: `nnnn` to grow taller, `iiii` to widen, etc. `getcharstr()` reads raw keys, so it matches the `h/n/e/i` the OS sends regardless of the noremap.
+> **Resize cluster:** the keys form a direction pad — `H`←left, `O`→right, `I`↑up, `N`↓bottom — where **each key grows the pane toward its own direction** (pulls that wall outward). So on the right-docked Claude pane, `H` (pull the left wall left) widens it and `O` narrows it; `I` makes a pane taller, `N` shorter. This is independent of tmux's `prefix H/N/E/I`.
+>
+> **Why a submode?** Each one-shot resize drops you back to normal mode, so you'd re-press the whole chord every step. `<leader>wr` enters a sticky mode (the Neovim equivalent of tmux's `-r` repeat): press `<leader>w` once, then tap the bare cluster keys to keep resizing — `hhhh` to widen, `iiii` to grow taller, etc. `getcharstr()` reads raw keys, so it matches the literal `h/o/n/i` the OS sends regardless of the noremap.
 
 **Tabs** — `<leader>t` (≈ tmux windows; built-in `gt`/`gT` are awkward under Colemak):
 | Key | Action |
 |-----|--------|
 | `<leader>tt` | New tab |
-| `<leader>tn` | Next tab |
-| `<leader>tp` | Previous tab |
+| `<leader>tn` | Next tab (one-shot) |
+| `<leader>tp` | Previous tab (one-shot) |
 | `<leader>tx` | Close tab |
+| `<leader>tc` | **Tab submode** — then `h`/`i` switch prev/next, `H`/`I` move tab left/right; `q`/`<Esc>` exits |
+
+> Like `<leader>wr` for windows, `<leader>tc` is a sticky submode: press `<leader>t` once, then tap `i`/`i`/`i` to walk forward through tabs (or `h` back), and `H`/`I` to reorder the current tab — no re-pressing the chord.
 
 #### Telescope — find
 | Key | Action |
@@ -267,26 +276,27 @@ Open the UI with `:Mason`. On first launch, the following tools are auto-install
 
 | Tool | Purpose |
 |------|---------|
-| `lua-language-server` | LSP |
-| `typescript-language-server` | LSP |
-| `pyright` | LSP |
-| `rust-analyzer` | LSP |
+| `lua-language-server`, `typescript-language-server`, `pyright`, `rust-analyzer` | LSP (core) |
+| `tailwindcss-language-server`, `css-lsp`, `html-lsp`, `marksman` | LSP (web / markdown) |
+| `vscode-eslint-language-server`, `yaml-language-server`, `taplo`, `dockerfile-language-server`, `bash-language-server`, `clangd` | LSP (extra) |
 | `biome` | Formatter (JS/TS/JSON) |
 | `stylua` | Formatter (Lua) |
+| `prettierd` | Formatter (CSS/HTML/YAML/Markdown/MDX) |
+| `eslint_d`, `ruff`, `shellcheck`, `markdownlint` | Linters (via nvim-lint) |
 
-Add more tools to the `ensure_installed` list in `lua/plugins/mason.lua`.
+The LSP set mirrors your VS Code extensions. Add more tools to the `ensure_installed` list in `lua/plugins/mason.lua`.
 
 ---
 
 ### Conform
 
-Format on save via [conform.nvim](https://github.com/stevearc/conform.nvim). Uses Biome for TypeScript/JavaScript/JSON and Stylua for Lua.
+Formatting via [conform.nvim](https://github.com/stevearc/conform.nvim), mirroring your VS Code defaults: **Biome** for JS/TS/JSON, **Stylua** for Lua, **prettierd** for CSS/HTML/YAML/Markdown/MDX.
 
 | Key | Action |
 |-----|--------|
 | `<leader>z` | Format buffer manually (`z` is not remapped in Colemak) |
 
-Format-on-save is enabled by default with a 1 s timeout and LSP fallback. To disable it for a buffer: `:ConformInfo`.
+**Manual only** — there is no format-on-save (matches your VS Code `editor.formatOnSave: false`); run `<leader>z` to format. `:ConformInfo` shows the resolved formatters for the current buffer.
 
 ---
 
@@ -354,7 +364,9 @@ Fuzzy finder — [telescope.nvim](https://github.com/nvim-telescope/telescope.nv
 
 ### LSP
 
-Config in `lua/plugins/lsp.lua`. Servers enabled by default: `lua_ls`, `ts_ls`, `rust_analyzer`, `pyright`. Add more to the `servers` table.
+Config in `lua/plugins/lsp.lua`. Servers enabled: `lua_ls`, `ts_ls`, `rust_analyzer`, `pyright`, `tailwindcss`, `eslint`, `yamlls`, `taplo`, `cssls`, `html`, `marksman`, `dockerls`, `bashls`, `clangd` — mirroring your VS Code extensions. Edit the `vim.lsp.enable({…})` list to add more.
+
+**Inlay hints** (parameter names / inferred types, like VS Code) are enabled automatically for any server that supports them; toggle per-buffer with `<leader>ci`. Diagnostics show inline virtual text + signs.
 
 All bindings use the `<leader>c` prefix (`c` = code, not remapped).
 
@@ -367,8 +379,51 @@ All bindings use the `<leader>c` prefix (`c` = code, not remapped).
 | `<leader>cv` | References |
 | `<leader>cm` | Go to implementation |
 | `<leader>cx` | Diagnostics float |
+| `<leader>ci` | Toggle inlay hints |
 | `]x` | Next diagnostic |
 | `[x` | Prev diagnostic |
+
+---
+
+### Linting — nvim-lint
+
+[nvim-lint](https://github.com/mfussenegger/nvim-lint) runs standalone linters where the LSP doesn't, on write / read / leaving insert. Each linter no-ops when a project has no matching config, so they're safe to leave on.
+
+| Filetype | Linter |
+|----------|--------|
+| JS / TS (+ react) | `eslint_d` |
+| Python | `ruff` |
+| Shell | `shellcheck` |
+| Markdown | `markdownlint` |
+
+---
+
+### Debugging — nvim-dap
+
+[nvim-dap](https://github.com/mfussenegger/nvim-dap) + [dap-ui](https://github.com/rcarriga/nvim-dap-ui) + virtual-text, with adapters installed via `mason-nvim-dap` (Python `debugpy`, JS/TS `js-debug`, Rust/C `codelldb`) — the equivalent of your VS Code `debugpy` / `cpptools`.
+
+**Hot path uses VS Code's F-keys** (layout-independent):
+
+| Key | Action |
+|-----|--------|
+| `<F5>` | Start / continue |
+| `<F9>` | Toggle breakpoint |
+| `<F10>` | Step over |
+| `<F11>` | Step into |
+| `<F12>` | Step out |
+
+**Full group** — `<leader>v` (debug; `v` is a free, Colemak-safe leader key):
+
+| Key | Action |
+|-----|--------|
+| `<leader>vv` / `<leader>vc` | Start / continue |
+| `<leader>vb` / `<leader>vB` | Toggle / conditional breakpoint |
+| `<leader>vo` / `<leader>vi` / `<leader>vu` | Step over / into / out |
+| `<leader>vd` | Toggle DAP UI |
+| `<leader>ve` | Eval expression (normal/visual) |
+| `<leader>vr` / `<leader>vl` / `<leader>vt` | REPL / run last / terminate |
+
+The DAP UI opens automatically when a session starts and closes when it ends.
 
 ---
 
@@ -498,15 +553,13 @@ Default triggers (`ys`/`cs`/`ds`) all collide with Colemak remaps, so everything
 
 ---
 
-### Claude Code — AI in a terminal split
+### Claude Code — agentic AI in the editor
 
-[claude-code.nvim](https://github.com/greggh/claude-code.nvim) — runs the Claude Code CLI in a bottom terminal split and auto-reloads any buffer Claude edits on disk. You interact with Claude entirely through its own TUI in the split; there's no in-editor diff/selection protocol — review and apply changes inside Claude itself, and watch your buffers refresh.
+[claudecode.nvim](https://github.com/coder/claudecode.nvim) — runs the Claude Code CLI inside Neovim over the same WebSocket IDE protocol used by the official VS Code / JetBrains extensions. Gives in-editor diff review (accept / reject Claude's changes), selection sharing, and `@`-file mentions.
 
 **Prerequisites:** the [`claude`](https://docs.claude.com/en/docs/claude-code) CLI on your `PATH` (authenticate once with `claude` in a terminal). No `ANTHROPIC_API_KEY` env var needed — the CLI handles auth.
 
-> Launches at the **git repo root** (`use_git_root`) in a **right-side vertical split** at 35% width (`position = "botright vsplit"`). For a bottom split instead, set `position = "botright"` (then `split_ratio` is height). The plugin's default `<C-,>` toggle and its `<C-h/j/k/l>` window-navigation maps are **disabled** — the latter would clobber Colemak `hnei`. Everything is driven from the `<leader>a` table below.
-
-**Resizing the pane:** the default size is `split_ratio` in `claudecode.lua`. To resize live, focus the Claude window in normal mode (`<C-g>` to leave terminal mode), then use the existing window-resize maps — `<leader>wH` / `<leader>wI` to narrow / widen a vertical pane (or `<leader>wN` / `<leader>wE` for a horizontal one). `<leader>w=` equalizes.
+> Uses Neovim's **native** terminal (`provider = "native"`, `split_side = "right"`, 35% width), so it pulls in no extra UI dependency — only `plenary.nvim`, which is already installed.
 
 **Bindings** — `<leader>a` prefix (`a` = ai, not remapped in Colemak):
 
@@ -514,9 +567,15 @@ Default triggers (`ys`/`cs`/`ds`) all collide with Colemak remaps, so everything
 |-----|:----:|--------|
 | `<leader>ac` | n | Toggle Claude terminal |
 | `<C-l>` | n, t | Toggle Claude — **also works from inside the terminal** |
-| `<leader>am` | n | Move pane: flip right vertical split ↔ bottom split (re-applies 35%) |
-| `<leader>ar` | n | Resume — interactive conversation picker |
-| `<leader>aC` | n | Continue most recent conversation |
+| `<leader>af` | n | Focus Claude window |
+| `<leader>ar` | n | Resume a previous session |
+| `<leader>aC` | n | Continue last conversation |
+| `<leader>am` | n | Select model |
+| `<leader>ab` | n | Add current buffer to context |
+| `<leader>as` | v | Send visual selection to Claude |
+| `<leader>as` | neo-tree | Add file/folder under cursor |
+| `<leader>aa` | n | Accept Claude's proposed diff |
+| `<leader>ad` | n | Reject Claude's proposed diff |
 
 **Terminal mode (Colemak-aware):** when focused inside the Claude terminal you are in **terminal mode** — keystrokes go to the Claude TUI, not Neovim, so `<leader>` maps don't fire there.
 
