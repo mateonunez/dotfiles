@@ -490,7 +490,11 @@ Git hunk decorations in the sign column. `<leader>h` prefix (`h` = hunk, not rem
 Local git is split across **gitsigns** (hunks/blame, above), **codediff** (diff/history/conflicts, below) and these two:
 
 - [octo.nvim](https://github.com/pwntester/octo.nvim) — GitHub PRs / issues / reviews (your `vscode-pull-request-github`). Needs the authenticated `gh` CLI.
-- [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim) — the `lazygit` TUI in a float for staging/commit/branch/rebase. As an external TUI it ignores the Colemak noremap entirely. **Needs `brew install lazygit`.**
+- [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim) — the `lazygit` TUI in a float for staging/commit/branch/rebase. As an external TUI it ignores Neovim's Colemak noremap, so navigation is set in lazygit's **own** config: [`.config/lazygit/config.yml`](../lazygit/config.yml) remaps it to `h`/`n`/`e`/`i` (and reassigns the `new`/`edit`/ignore actions those keys shadowed to `N`/`E`/`I`). **Needs `brew install lazygit`**, and the config symlinked into place:
+  ```bash
+  ln -sf ~/.dotfiles/.config/lazygit/config.yml \
+         ~/"Library/Application Support/lazygit/config.yml"
+  ```
 
 | Key | Action |
 |-----|--------|

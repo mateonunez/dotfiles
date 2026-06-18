@@ -1,0 +1,20 @@
+# Colemak keybindings for lazygit — mirrors the hnei navigation used across
+# these dotfiles (tmux panes, Neovim). lazygit ships hjkl; on a Colemak layout
+# those land on the wrong physical keys, so navigation moves to h / n / e / i:
+#
+#   h ← prev block (left)      i → next block (right)
+#   n ↓ next item  (down)      e ↑ prev item  (up)
+#
+# n, e and i also trigger actions by default (new / edit / ignore), so those are
+# reassigned to their capitals to free the home-row nav keys. Arrows and Tab
+# still work everywhere too.
+keybinding:
+  universal:
+    nextItem: ["<down>", "n"]                # down  (was j)
+    prevItem: ["<up>", "e"]                  # up    (was k)
+    prevBlock: ["<left>", "h", "<backtab>"]  # left  (h kept)
+    nextBlock: ["<right>", "i", "<tab>"]     # right (was l)
+    edit: "E"                                # frees 'e' for "up"
+    new: "N"                                 # frees 'n' for "down"
+  files:
+    ignoreFile: "I"                          # frees 'i' for "right"
