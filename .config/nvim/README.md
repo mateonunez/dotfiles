@@ -440,7 +440,7 @@ All bindings use the `<leader>c` prefix (`c` = code, not remapped).
 | `<leader>ve` | Eval expression (normal/visual) |
 | `<leader>vr` / `<leader>vl` / `<leader>vt` | REPL / run last / terminate |
 
-The DAP UI opens automatically when a session starts and closes when it ends.
+The DAP UI opens automatically when a session starts and closes when it ends. (Colemak: dap-ui's default `e`=edit-value is moved to `E` so `e` still navigates the UI windows.)
 
 ---
 
@@ -517,6 +517,8 @@ Local git is split across **gitsigns** (hunks/blame, above), **codediff** (diff/
 | `<leader>rd` | Debug nearest test (uses nvim-dap) |
 | `<leader>rl` | Run last |
 | `<leader>rs` / `<leader>ro` / `<leader>rp` | Summary / output / output panel |
+
+> Colemak: the summary's default `e`=expand-all and `i`=jumpto are moved to `E`/`I` so `n`/`e`/`i` navigate the tree.
 
 ---
 

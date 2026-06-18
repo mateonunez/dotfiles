@@ -39,7 +39,18 @@ return {
         handlers = {}, -- default handlers wire up each installed adapter automatically
       })
 
-      dapui.setup()
+      dapui.setup({
+        -- Colemak: dap-ui's default `e` (edit value) shadows up-nav (e→k).
+        -- Move it to capital E so `e` keeps navigating in the UI windows.
+        mappings = {
+          expand = { "<CR>", "<2-LeftMouse>" },
+          open   = "o",
+          remove = "d",
+          edit   = "E",
+          repl   = "r",
+          toggle = "t",
+        },
+      })
       require("nvim-dap-virtual-text").setup()
 
       -- Open/close the DAP UI automatically around a session.

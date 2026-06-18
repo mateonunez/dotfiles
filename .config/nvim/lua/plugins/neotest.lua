@@ -27,6 +27,15 @@ return {
           require("neotest-jest"),
           require("neotest-python"),
         },
+        -- Colemak: the summary's defaults bind `e` (expand_all) and `i` (jumpto),
+        -- which shadow up/right nav (e→k, i→l). Move them to free capitals so
+        -- n/e/i navigate the tree as everywhere else.
+        summary = {
+          mappings = {
+            expand_all = "E",
+            jumpto     = "I",
+          },
+        },
       })
     end,
   },
