@@ -12,6 +12,7 @@ return {
       },
     },
     opts = {
+      -- Mirrors your VSCode defaults: biome for JS/TS/JSON, prettier elsewhere.
       formatters_by_ft = {
         javascript      = { "biome" },
         typescript      = { "biome" },
@@ -20,11 +21,15 @@ return {
         json            = { "biome" },
         jsonc           = { "biome" },
         lua             = { "stylua" },
+        css             = { "prettierd" },
+        scss            = { "prettierd" },
+        html            = { "prettierd" },
+        yaml            = { "prettierd" },
+        markdown        = { "prettierd" },
+        mdx             = { "prettierd" },
       },
-      format_on_save = {
-        timeout_ms   = 1000,
-        lsp_fallback = true,
-      },
+      -- Manual formatting only (matches VSCode `formatOnSave: false`). Trigger
+      -- with <leader>z; no format-on-save.
     },
   },
 }

@@ -15,3 +15,5 @@ opt.undofile      = true
 opt.backspace     = "indent,eol,start"
 opt.history       = 10000
 opt.clipboard     = "unnamed"
+opt.colorcolumn   = "80"          -- matches VSCode editor.rulers [80]
+opt.signcolumn    = "yes"         -- stable gutter (diagnostics/git signs don't shift text)

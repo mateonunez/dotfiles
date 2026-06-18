@@ -8,14 +8,30 @@ return {
 
       -- auto-install tools on first launch
       local ensure_installed = {
-        -- LSP servers (match lsp.lua)
+        -- LSP servers (match lsp.lua / your VSCode extensions)
         "lua-language-server",
         "typescript-language-server",
         "pyright",
         "rust-analyzer",
+        "tailwindcss-language-server",   -- bradlc.vscode-tailwindcss
+        "vscode-eslint-language-server", -- dbaeumer.vscode-eslint
+        "yaml-language-server",          -- redhat.vscode-yaml
+        "taplo",                         -- tamasfe.even-better-toml
+        "css-lsp",                       -- web
+        "html-lsp",                      -- web
+        "marksman",                      -- markdown
+        "dockerfile-language-server",    -- docker.docker
+        "bash-language-server",
+        "clangd",                        -- ms-vscode.cpptools
         -- Formatters (used by conform.lua)
         "biome",
         "stylua",
+        "prettierd",                     -- esbenp.prettier-vscode (md/yaml/css/html)
+        -- Linters (used by nvim-lint)
+        "eslint_d",
+        "ruff",
+        "shellcheck",
+        "markdownlint",
       }
 
       local registry = require("mason-registry")

@@ -18,6 +18,7 @@ return {
         { "<leader>w", group = "window (splits)" },
         { "<leader>t", group = "tabs" },
         { "<leader>s", group = "search / replace" },
+        { "<leader>v", group = "debug (DAP)" },
         { "<leader>d", group = "diff (codediff)" },
         { "]",         group = "next" },
         { "[",         group = "prev" },

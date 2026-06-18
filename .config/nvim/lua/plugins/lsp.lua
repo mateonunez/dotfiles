@@ -26,7 +26,25 @@ return {
           -- ]x / [x: ']' and '[' are not remapped, 'x' is not remapped
           map("]x", vim.diagnostic.goto_next, "Next diagnostic")
           map("[x", vim.diagnostic.goto_prev, "Prev diagnostic")
+
+          -- Inlay hints (types/param names, like VSCode). Toggle with <leader>ci.
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
+          if client and client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+            map("<leader>ci", function()
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }), { bufnr = event.buf })
+            end, "Toggle inlay hints")
+          end
         end,
+      })
+
+      -- Diagnostics: inline virtual text + signs (VSCode-like presentation).
+      vim.diagnostic.config({
+        virtual_text = { spacing = 2, prefix = "●" },
+        severity_sort = true,
+        underline = true,
+        update_in_insert = false,
+        float = { border = "rounded", source = true },
       })
 
       -- blink.cmp capabilities (injected when available)
@@ -49,8 +67,17 @@ return {
         },
       })
 
+      -- Tailwind: also light up in the JSX/TSX/CSS filetypes you use.
+      vim.lsp.config("tailwindcss", {
+        filetypes = { "html", "css", "javascriptreact", "typescriptreact", "svelte", "vue" },
+      })
+
       -- Enable servers — mason-lspconfig ensures they are installed
-      vim.lsp.enable({ "lua_ls", "ts_ls", "rust_analyzer", "pyright" })
+      vim.lsp.enable({
+        "lua_ls", "ts_ls", "rust_analyzer", "pyright",
+        "tailwindcss", "eslint", "yamlls", "taplo",
+        "cssls", "html", "marksman", "dockerls", "bashls", "clangd",
+      })
     end,
   },
 }
