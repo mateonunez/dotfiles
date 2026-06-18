@@ -14,7 +14,7 @@ return {
         "pyright",
         "rust-analyzer",
         "tailwindcss-language-server",   -- bradlc.vscode-tailwindcss
-        "vscode-eslint-language-server", -- dbaeumer.vscode-eslint
+        "eslint-lsp",                    -- dbaeumer.vscode-eslint (ships vscode-eslint-language-server)
         "yaml-language-server",          -- redhat.vscode-yaml
         "taplo",                         -- tamasfe.even-better-toml
         "css-lsp",                       -- web
@@ -37,9 +37,13 @@ return {
       local registry = require("mason-registry")
       registry.refresh(function()
         for _, name in ipairs(ensure_installed) do
-          local pkg = registry.get_package(name)
-          if not pkg:is_installed() then
+          -- get_package throws on an unknown name — guard so one typo can't
+          -- abort the whole install loop (and mason's config).
+          local ok, pkg = pcall(registry.get_package, name)
+          if ok and not pkg:is_installed() then
             pkg:install()
+          elseif not ok then
+            vim.notify("mason: unknown package '" .. name .. "' (skipped)", vim.log.levels.WARN)
           end
         end
       end)
