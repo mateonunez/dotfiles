@@ -1,23 +1,43 @@
-# Colemak keybindings for lazygit — mirrors the hnei navigation used across
-# these dotfiles (tmux panes, Neovim). lazygit ships hjkl; on a Colemak layout
-# those land on the wrong physical keys, so navigation moves to h / n / e / i:
+# Colemak keybindings for lazygit — full hnei navigation, matching the rest of
+# these dotfiles (tmux, nvim). lazygit ships hjkl; on a Colemak layout those land
+# off the home row, so navigation moves to h / n / e / i:
 #
 #   h ← prev block (left)      i → next block (right)
 #   n ↓ next item  (down)      e ↑ prev item  (up)
 #
-# n, e and i also trigger actions by default (new / edit / ignore), so those are
-# reassigned to their capitals to free the home-row nav keys. Arrows and Tab
-# still work everywhere too.
+# n / e / i are action keys by default, so every colliding action is reassigned
+# below. Remapping nav off j/k/l also frees those keys, used here for search.
+#
+#   reassigned action            old key → new key
+#   ─────────────────────────────────────────────
+#   new (branch/tag/remote/…)        n → N
+#   edit                             e → E
+#   ignore file                      i → I   (files)
+#   git-flow options                 i → Q   (branches)
+#   start interactive rebase         i → U   (commits)
+#   init submodule                   i → Z   (submodules)
+#   edit hunk                        E → X   (staging; frees E for edit)
+#   search next / prev match       n/N → j / k  (freed by the nav remap)
 keybinding:
   universal:
-    nextItem: ["<down>", "n"]                # down  (was j)
-    prevItem: ["<up>", "e"]                  # up    (was k)
-    prevBlock: ["<left>", "h", "<backtab>"]  # left  (h kept)
-    nextBlock: ["<right>", "i", "<tab>"]     # right (was l)
-    edit: "E"                                # frees 'e' for "up"
-    new: "N"                                 # frees 'n' for "down"
+    nextItem:  ["<down>", "n"]                # down  (was j)
+    prevItem:  ["<up>", "e"]                  # up    (was k)
+    prevBlock: ["<left>", "h", "<backtab>"]   # left  (h kept — already default)
+    nextBlock: ["<right>", "i", "<tab>"]      # right (was l)
+    new:  "N"                                 # frees 'n' for "down"
+    edit: "E"                                 # frees 'e' for "up"
+    nextMatch: "j"                            # search next match (was n)
+    prevMatch: "k"                            # search prev match (was N → frees N for new)
   files:
-    ignoreFile: "I"                          # frees 'i' for "right"
+    ignoreFile: "I"                           # frees 'i' for "right"
+  branches:
+    viewGitFlowOptions: "Q"                   # frees 'i'
+  commits:
+    startInteractiveRebase: "U"               # frees 'i'
+  submodules:
+    init: "Z"                                 # frees 'i'
+  main:
+    editSelectHunk: "X"                       # frees 'E' for "edit"
 
 # Kanagawa-matched selection colours — the default blue washes out the green
 # diff text on the selected hunk. Wave-blue bg keeps added/removed lines legible.
