@@ -89,7 +89,16 @@ $ ln -s ~/.somewhere/.tmux.conf.local ~/.tmux.conf.local
 
 ## 📦 nvim
 
-The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.nvim), with Colemak-aware keymaps and one file per plugin.
+A full IDE built on [lazy.nvim](https://github.com/folke/lazy.nvim), with Colemak-aware keymaps and one file per plugin. It's tuned to mirror my VS Code toolchain:
+
+- **LSP & completion** — 14 servers (TS, Lua, Rust, Python, Tailwind, ESLint, YAML, TOML, CSS/HTML, Docker, Bash, clangd…) via Mason, `blink.cmp`, inlay hints, breadcrumbs + symbols outline.
+- **Diagnostics & quality** — `nvim-lint` (eslint_d/ruff/shellcheck), `conform` formatting (Biome + Prettier + Stylua, manual via `<leader>z`), readable TS errors.
+- **Debugging** — `nvim-dap` + dap-ui with VS Code's `F5`/`F9`/`F10`/`F11` keys (Python, JS/TS, Rust/C).
+- **Testing** — `neotest` (jest/vitest/python), debug-a-test via DAP.
+- **Git** — `gitsigns` (hunks + inline blame), `codediff` (diff/history/conflicts), `octo` (GitHub PRs), `lazygit`.
+- **AI** — [Claude Code](https://github.com/coder/claudecode.nvim) in-editor (`<leader>a`).
+- **Refactoring & editing** — `refactoring.nvim`, multiple cursors, surround, autopairs, Treesitter textobjects.
+- **Navigation** — Telescope, Harpoon, Neo-tree, Trouble, grug-far, which-key.
 
 📖 **Full guide → [.config/nvim/README.md](.config/nvim/README.md)** — install, the Colemak key map, the complete keybinding cheatsheet, and per-plugin notes.
 
@@ -98,7 +107,7 @@ $ git clone https://github.com/mateonunez/dotfiles ~/.somewhere
 $ ln -s ~/.somewhere/.config/nvim ~/.config/nvim
 ```
 
-> Back up your existing `~/.config/nvim` first. On first launch lazy.nvim installs every plugin.
+> Back up your existing `~/.config/nvim` first. On first launch lazy.nvim installs every plugin (and Mason pulls the LSP/DAP/linter tools — give it a minute). `lazygit` and the `gh` CLI should be on your `PATH` for the git integrations.
 
 ---
 
