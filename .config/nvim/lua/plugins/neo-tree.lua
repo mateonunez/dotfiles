@@ -8,7 +8,10 @@ return {
       "MunifTanjim/nui.nvim",
     },
     keys = {
-      { "<leader>a", "<cmd>Neotree toggle<cr>", desc = "Toggle Neo-tree" },
+      -- <leader>b (browser/tree). Moved off <leader>a, which is now the
+      -- ai / claude prefix — keeping <leader>a a pure prefix avoids the
+      -- timeout delay a direct mapping there would add to claudecode keys.
+      { "<leader>b", "<cmd>Neotree toggle<cr>", desc = "Toggle Neo-tree" },
     },
     opts = {
       close_if_last_window = true,

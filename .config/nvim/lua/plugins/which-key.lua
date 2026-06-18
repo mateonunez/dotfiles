@@ -9,6 +9,7 @@ return {
       },
       spec = {
         -- Group labels so the popup is readable instead of flat
+        { "<leader>a", group = "ai / claude" },
         { "<leader>c", group = "code / LSP" },
         { "<leader>f", group = "find (telescope)" },
         { "<leader>h", group = "git hunks" },
