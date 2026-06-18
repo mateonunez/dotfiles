@@ -11,6 +11,9 @@ return {
         changedelete = { text = "▎" },
         untracked    = { text = "▎" },
       },
+      -- Inline virtual-text blame on the current line (GitLens-style).
+      current_line_blame = true,
+      current_line_blame_opts = { delay = 400, virt_text_pos = "eol" },
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
         local map = function(mode, keys, fn, desc)
@@ -36,7 +39,8 @@ return {
         map("n", "<leader>hA", gs.stage_buffer,      "Stage buffer")
         map("n", "<leader>hX", gs.reset_buffer,      "Reset buffer")
         map("n", "<leader>hv", gs.preview_hunk,      "Preview hunk")
-        map("n", "<leader>hb", gs.blame_line,        "Blame line")
+        map("n", "<leader>hb", gs.blame_line,        "Blame line (full)")
+        map("n", "<leader>hB", gs.toggle_current_line_blame, "Toggle inline blame")
         map("n", "<leader>hq", gs.setqflist,         "Hunks to quickfix")
         map({ "n", "v" }, "<leader>ha", function()
           gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })

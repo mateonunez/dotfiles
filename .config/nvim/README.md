@@ -35,7 +35,14 @@ The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.n
         ├── refactoring.lua       # extract/inline refactors
         ├── aerial.lua            # symbols outline + breadcrumbs
         ├── ts-error.lua          # readable TypeScript errors
-        └── ui.lua                # dressing + fidget (LSP UX)
+        ├── ui.lua                # dressing + fidget (LSP UX)
+        ├── octo.lua              # GitHub PRs / issues
+        ├── lazygit.lua           # lazygit TUI client
+        ├── neotest.lua           # test runner
+        ├── multicursor.lua       # multiple cursors
+        ├── colorizer.lua         # inline colour swatches
+        ├── todo-comments.lua     # TODO/FIXME highlighting
+        └── indent.lua            # indent guides
 ```
 
 ### How to run it?
@@ -136,6 +143,8 @@ Groups shown in the popup:
 | `<leader>d` | diff (codediff) |
 | `<leader>f` | find (telescope) |
 | `<leader>h` | git hunks |
+| `<leader>g` | git / github (octo, lazygit) |
+| `<leader>r` | run / test (neotest) |
 | `<leader>x` | trouble / diagnostics |
 | `<leader>v` | debug (DAP) |
 | `<leader>m` | harpoon |
@@ -470,8 +479,50 @@ Git hunk decorations in the sign column. `<leader>h` prefix (`h` = hunk, not rem
 | `<leader>hA` | Stage entire buffer |
 | `<leader>hX` | Reset entire buffer |
 | `<leader>hv` | Preview hunk |
-| `<leader>hb` | Blame current line |
+| `<leader>hb` | Blame current line (full) |
+| `<leader>hB` | Toggle inline blame (GitLens-style, on by default) |
 | `<leader>hq` | Send hunks to quickfix |
+
+---
+
+### Git / GitHub — octo + lazygit
+
+Local git is split across **gitsigns** (hunks/blame, above), **codediff** (diff/history/conflicts, below) and these two:
+
+- [octo.nvim](https://github.com/pwntester/octo.nvim) — GitHub PRs / issues / reviews (your `vscode-pull-request-github`). Needs the authenticated `gh` CLI.
+- [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim) — the `lazygit` TUI in a float for staging/commit/branch/rebase. As an external TUI it ignores the Colemak noremap entirely. **Needs `brew install lazygit`.**
+
+| Key | Action |
+|-----|--------|
+| `<leader>gg` | LazyGit (git client) |
+| `<leader>gp` / `<leader>gP` | GitHub: PR list / create PR |
+| `<leader>gi` | GitHub: issue list |
+| `<leader>gv` | GitHub: review PR |
+
+> `<leader>g` is typed physical `Space`+`d` (Colemak `d→g`), same as `<leader>d` is `Space`+`s`.
+
+---
+
+### Testing — neotest
+
+[neotest](https://github.com/nvim-neotest/neotest) with jest / vitest / python adapters. `<leader>r` = run/test (typed `Space`+`p`).
+
+| Key | Action |
+|-----|--------|
+| `<leader>rr` / `<leader>rf` | Run nearest / file |
+| `<leader>rd` | Debug nearest test (uses nvim-dap) |
+| `<leader>rl` | Run last |
+| `<leader>rs` / `<leader>ro` / `<leader>rp` | Summary / output / output panel |
+
+---
+
+### Editing polish
+
+- **multicursor.nvim** — VS Code-style multiple cursors. `<C-n>` adds a cursor at the next match of the word/selection, `<C-x>` skips, `<C-Up>`/`<C-Down>` add by line; `<Esc>` clears. (Ctrl + arrows — layout-independent.)
+- **nvim-colorizer** — inline colour swatches for hex/rgb/tailwind (`naumovs.color-highlight`).
+- **todo-comments** — highlights `TODO`/`FIXME`/etc.; `]t`/`[t` jump, `<leader>xt` (trouble), `<leader>ft` (telescope).
+- **indent-blankline** — indent guides with active-scope highlight.
+- **nvim-ts-autotag** — auto-close/rename JSX & HTML tags.
 
 ---
 

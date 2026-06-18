@@ -13,6 +13,8 @@ return {
         { "<leader>c", group = "code / LSP" },
         { "<leader>f", group = "find (telescope)" },
         { "<leader>h", group = "git hunks" },
+        { "<leader>g", group = "git / github" },
+        { "<leader>r", group = "run / test" },
         { "<leader>x", group = "trouble / diagnostics" },
         { "<leader>m", group = "harpoon" },
         { "<leader>w", group = "window (splits)" },
