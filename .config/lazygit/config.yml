@@ -18,3 +18,10 @@ keybinding:
     new: "N"                                 # frees 'n' for "down"
   files:
     ignoreFile: "I"                          # frees 'i' for "right"
+
+# Kanagawa-matched selection colours — the default blue washes out the green
+# diff text on the selected hunk. Wave-blue bg keeps added/removed lines legible.
+gui:
+  theme:
+    selectedLineBgColor:  ["#2d4f67"]
+    selectedRangeBgColor: ["#2d4f67"]
