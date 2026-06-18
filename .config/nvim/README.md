@@ -31,7 +31,11 @@ The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.n
         ├── trouble.lua
         ├── dap.lua               # debugging (nvim-dap + dap-ui)
         ├── lint.lua              # linters (nvim-lint: eslint_d/ruff/…)
-        └── autotag.lua           # auto-close JSX/HTML tags
+        ├── autotag.lua           # auto-close JSX/HTML tags
+        ├── refactoring.lua       # extract/inline refactors
+        ├── aerial.lua            # symbols outline + breadcrumbs
+        ├── ts-error.lua          # readable TypeScript errors
+        └── ui.lua                # dressing + fidget (LSP UX)
 ```
 
 ### How to run it?
@@ -380,8 +384,12 @@ All bindings use the `<leader>c` prefix (`c` = code, not remapped).
 | `<leader>cm` | Go to implementation |
 | `<leader>cx` | Diagnostics float |
 | `<leader>ci` | Toggle inlay hints |
+| `<leader>cr` | Refactor menu (extract / inline — normal + visual) |
+| `<leader>cs` | Symbols outline (aerial) |
 | `]x` | Next diagnostic |
 | `[x` | Prev diagnostic |
+
+> **IDE UX (no keymaps, automatic):** `refactoring.nvim` powers `<leader>cr`; `aerial.nvim` the `<leader>cs` outline; **barbecue** shows breadcrumbs in the winbar; **dressing** turns code-action / rename / refactor pickers into floats; **fidget** shows LSP progress; **ts-error-translator** rewrites cryptic TS errors (like `pretty-ts-errors`).
 
 ---
 
