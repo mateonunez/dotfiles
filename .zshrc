@@ -1,4 +1,4 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+I# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -119,6 +119,7 @@ bindkey '^ ' autosuggest-accept
 
 # Aliases
 alias k="kubectl"
+alias mk="minikube kubectl --"
 alias ~='cd ~'
 alias ..='cd ..'
 alias c='clear'
@@ -138,7 +139,12 @@ alias gpfn='git push --force --no-verify'
 alias gcnm='git commit -n -m'
 alias gcsnm='git commit -S -n -m'
 alias ce='claude'
+alias cx='codex'
 alias gsw='gitswitch'
+alias show-agents='cl .claude/agents'
+alias ta='tmux a'
+alias pi-minimax='pi --provider amazon-bedrock --model minimax.minimax-m2.5'
+alias pi-sonnet='pi --provider amazon-bedrock --model anthropic.claude-sonnet-4-6'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -173,3 +179,17 @@ export PATH="/Users/mateonunez/.antigravity/antigravity/bin:$PATH"
 
 # Added by Antigravity
 export PATH="/Users/mateonunez/.antigravity/antigravity/bin:$PATH"
+
+# Istio
+export PATH="/Users/mateonunez/.packages/istio-1.29.2/bin:$PATH"
+
+# opencode
+export PATH=/Users/mateonunez/.opencode/bin:$PATH
+
+# >>> grok installer >>>
+export PATH="$HOME/.grok/bin:$PATH"
+# <<< grok installer <<<
+
+# Codex autocompletions
+eval "$(codex completion zsh)"
+
