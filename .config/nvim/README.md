@@ -22,7 +22,7 @@ The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.n
         ├── autopairs.lua
         ├── surround.lua
         ├── grug-far.lua
-        ├── codecompanion.lua
+        ├── claudecode.lua
         ├── codediff.lua
         ├── lsp.lua
         ├── blink.lua
@@ -124,6 +124,7 @@ Groups shown in the popup:
 
 | Prefix | Group |
 |--------|-------|
+| `<leader>a` | ai / claude |
 | `<leader>c` | code / LSP |
 | `<leader>d` | diff (codediff) |
 | `<leader>f` | find (telescope) |
@@ -144,7 +145,7 @@ Groups shown in the popup:
 #### File explorer — Neo-tree
 | Key | Action |
 |-----|--------|
-| `<leader>a` | Toggle Neo-tree |
+| `<leader>b` | Toggle Neo-tree |
 
 #### Windows & tabs
 
@@ -157,9 +158,12 @@ Groups shown in the popup:
 | `<leader>w-` | Split below (mirrors tmux `prefix -`) |
 | `<leader>w\` | Split right (mirrors tmux `prefix _`) |
 | `<leader>wq` | Close window |
-| `<leader>wH` / `<leader>wI` | Resize narrower / wider (mirrors tmux `prefix H/I`) |
-| `<leader>wN` / `<leader>wE` | Resize taller / shorter (mirrors tmux `prefix N/E`) |
+| `<leader>wH` / `<leader>wI` | Resize narrower / wider, one step (mirrors tmux `prefix H/I`) |
+| `<leader>wN` / `<leader>wE` | Resize taller / shorter, one step (mirrors tmux `prefix N/E`) |
+| `<leader>wr` | **Resize submode** — then tap `h`/`i` (width), `n`/`e` (height), `=` equalize; `q`/`<Esc>` exits |
 | `<leader>w=` | Equalize all windows |
+
+> **Why a submode?** Each `<leader>wH/wI/wN/wE` is a one-shot resize — you'd re-press the whole chord every step. `<leader>wr` enters a sticky mode (the Neovim equivalent of tmux's `-r` repeat) so you press `<leader>w` once and then tap the bare Colemak nav keys to keep resizing: `nnnn` to grow taller, `iiii` to widen, etc. `getcharstr()` reads raw keys, so it matches the `h/n/e/i` the OS sends regardless of the noremap.
 
 **Tabs** — `<leader>t` (≈ tmux windows; built-in `gt`/`gT` are awkward under Colemak):
 | Key | Action |
@@ -332,7 +336,7 @@ Fuzzy finder — [telescope.nvim](https://github.com/nvim-telescope/telescope.nv
 
 | Keymap | Action |
 |--------|--------|
-| `<leader>a` | Toggle Neo-tree |
+| `<leader>b` | Toggle Neo-tree |
 
 **Navigation** — the global Colemak noremap applies automatically:
 
@@ -494,16 +498,30 @@ Default triggers (`ys`/`cs`/`ds`) all collide with Colemak remaps, so everything
 
 ---
 
-### CodeCompanion — AI chat
+### Claude Code — AI in a terminal split
 
-[codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim) — inline AI chat and code actions. Configured to use Anthropic (Claude) by default. Requires `ANTHROPIC_API_KEY` in your environment.
+[claude-code.nvim](https://github.com/greggh/claude-code.nvim) — runs the Claude Code CLI in a bottom terminal split and auto-reloads any buffer Claude edits on disk. You interact with Claude entirely through its own TUI in the split; there's no in-editor diff/selection protocol — review and apply changes inside Claude itself, and watch your buffers refresh.
 
-| Key | Action |
-|-----|--------|
-| `<leader>cc` | Toggle chat panel |
-| `<leader>cC` | Open actions menu |
+**Prerequisites:** the [`claude`](https://docs.claude.com/en/docs/claude-code) CLI on your `PATH` (authenticate once with `claude` in a terminal). No `ANTHROPIC_API_KEY` env var needed — the CLI handles auth.
 
-Both bindings work in normal and visual mode — select code first to send it as context.
+> Launches at the **git repo root** (`use_git_root`) in a **right-side vertical split** at 35% width (`position = "botright vsplit"`). For a bottom split instead, set `position = "botright"` (then `split_ratio` is height). The plugin's default `<C-,>` toggle and its `<C-h/j/k/l>` window-navigation maps are **disabled** — the latter would clobber Colemak `hnei`. Everything is driven from the `<leader>a` table below.
+
+**Resizing the pane:** the default size is `split_ratio` in `claudecode.lua`. To resize live, focus the Claude window in normal mode (`<C-g>` to leave terminal mode), then use the existing window-resize maps — `<leader>wH` / `<leader>wI` to narrow / widen a vertical pane (or `<leader>wN` / `<leader>wE` for a horizontal one). `<leader>w=` equalizes.
+
+**Bindings** — `<leader>a` prefix (`a` = ai, not remapped in Colemak):
+
+| Key | Mode | Action |
+|-----|:----:|--------|
+| `<leader>ac` | n | Toggle Claude terminal |
+| `<C-l>` | n, t | Toggle Claude — **also works from inside the terminal** |
+| `<leader>am` | n | Move pane: flip right vertical split ↔ bottom split (re-applies 35%) |
+| `<leader>ar` | n | Resume — interactive conversation picker |
+| `<leader>aC` | n | Continue most recent conversation |
+
+**Terminal mode (Colemak-aware):** when focused inside the Claude terminal you are in **terminal mode** — keystrokes go to the Claude TUI, not Neovim, so `<leader>` maps don't fire there.
+
+- `<C-l>` — one press toggles Claude show/hide from anywhere, terminal mode included. It's a `<cmd>` mapping, so it runs without disturbing Claude's input. (Trade-off: shadows normal-mode `<C-l>` redraw, and Claude itself never receives `<C-l>`.)
+- `<C-g>` / `<C-\><C-n>` — exit terminal mode → normal mode (e.g. to scroll/yank Claude's output), then re-enter with `a`/`u`. The `<C-g>` alias lives in `keymaps.lua` (global, any `:terminal`); both are unaffected by the Colemak noremap, which only touches normal/visual/operator modes.
 
 ---
 
