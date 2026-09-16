@@ -1,0 +1,84 @@
+# Global gwm configuration. Repository-local .gwm.toml files may override it.
+
+[tui]
+auto_refresh_secs = 30
+clipboard = "tools"
+layout = "compact"
+sidebar_orientation = "side-by-side"
+sidebar_position = "right"
+mux_open_in = "pane"
+mux_pane_direction = "right"
+
+# gwm receives raw terminal keys, so mirror the Colemak navigation used by
+# Neovim, tmux, and lazygit. Actions displaced from n/e keep memorable
+# uppercase bindings.
+[tui.keys]
+down = ["n", "Down"]
+up = ["e", "Up"]
+create = ["N"]
+edit_note = ["M"]
+edit_worktree = ["E"]
+exit_to_worktree = ["Enter"]
+
+[tui.keys.modal.create]
+prev_type = ["Up", "Left", "h"]
+next_type = ["Down", "Right", "i"]
+
+[tui.keys.modal.confirm]
+focus_confirm = ["Left", "h"]
+focus_cancel = ["Right", "i"]
+
+[tui.keys.modal.help]
+scroll_down = ["Down", "n"]
+scroll_up = ["Up", "e"]
+scroll_right = ["Right", "i"]
+scroll_left = ["Left", "h"]
+
+[tui.keys.modal.detail]
+select_next = ["Down", "n"]
+select_prev = ["Up", "e"]
+
+[tui.keys.modal.command_logs]
+scroll_down = ["Down", "n"]
+scroll_up = ["Up", "e"]
+scroll_right = ["Right", "i"]
+scroll_left = ["Left", "h"]
+
+[tui.keys.modal.working_tree]
+scroll_down = ["Down", "n"]
+scroll_up = ["Up", "e"]
+
+[tui.keys.modal.commits]
+scroll_down = ["Down", "n"]
+scroll_up = ["Up", "e"]
+
+[tui.keys.modal.config]
+select_next = ["Down", "n"]
+select_prev = ["Up", "e"]
+scroll_right = ["Right", "i"]
+scroll_left = ["Left", "h"]
+
+[tui.keys.modal.open_menu]
+toggle = ["n", "e", "Down", "Up"]
+
+[tui.keys.modal.link.choose_target]
+next = ["n", "Down"]
+prev = ["e", "Up"]
+
+[tui.keys.modal.exec]
+next = ["n", "Down"]
+prev = ["e", "Up"]
+
+[tui.keys.modal.ci_checks]
+select_next = ["n", "Down"]
+select_prev = ["e", "Up"]
+
+[tui.keys.modal.rich_view]
+select_next = ["n", "Down"]
+select_prev = ["e", "Up"]
+scroll_left = ["h", "Left"]
+scroll_right = ["i", "Right"]
+
+[review]
+command = "gwm-codediff '{path}' '{base}' '{head}'"
+fullscreen = true

@@ -485,10 +485,12 @@ Git hunk decorations in the sign column. `<leader>h` prefix (`h` = hunk, not rem
 
 ---
 
-### Git / GitHub — octo + lazygit
+### Git / GitHub — gwm + octo + lazygit
 
-Local git is split across **gitsigns** (hunks/blame, above), **codediff** (diff/history/conflicts, below) and these two:
+Local git is split across **gitsigns** (hunks/blame, above), **codediff**
+(diff/history/conflicts, below), and these tools:
 
+- [`gwm`](https://github.com/kbrdn1/gwm-cli) — multi-repository worktree and coding-agent workspace. `:GwmStudiojin` opens the StudioJin workspace in a native floating terminal; quitting `gwm` closes the float and restores editor focus. The launcher must be available as `gwm-studiojin` on `PATH`.
 - [octo.nvim](https://github.com/pwntester/octo.nvim) — GitHub PRs / issues / reviews (your `vscode-pull-request-github`). Needs the authenticated `gh` CLI.
 - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim) — the `lazygit` TUI in a float for staging/commit/branch/rebase. As an external TUI it ignores Neovim's Colemak noremap, so navigation is set in lazygit's **own** config: [`.config/lazygit/config.yml`](../lazygit/config.yml) remaps it to `h`/`n`/`e`/`i` (and reassigns the `new`/`edit`/ignore actions those keys shadowed to `N`/`E`/`I`). **Needs `brew install lazygit`**, and the config symlinked into place:
   ```bash
@@ -498,6 +500,7 @@ Local git is split across **gitsigns** (hunks/blame, above), **codediff** (diff/
 
 | Key | Action |
 |-----|--------|
+| `<leader>gw` | StudioJin worktree workspace (`gwm`) |
 | `<leader>gg` | LazyGit (git client) |
 | `<leader>gp` / `<leader>gP` | GitHub: PR list / create PR |
 | `<leader>gi` | GitHub: issue list |

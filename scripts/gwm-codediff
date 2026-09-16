@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -eu
+
+if [ "$#" -ne 3 ]; then
+  echo "usage: gwm-codediff <worktree> <base> <head>" >&2
+  exit 2
+fi
+
+worktree=$1
+base=$2
+head=$3
+
+if ! git -C "$worktree" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "gwm-codediff: not a Git worktree: $worktree" >&2
+  exit 1
+fi
+
+# Resolve refs before constructing the Ex command. Besides producing a stable
+# review range, commit IDs cannot inject Vim command separators.
+base_commit=$(git -C "$worktree" rev-parse --verify "${base}^{commit}")
+head_commit=$(git -C "$worktree" rev-parse --verify "${head}^{commit}")
+review_range="${base_commit}...${head_commit}"
+
+if [ "${GWM_CODEDIFF_DRY_RUN:-0}" = "1" ]; then
+  printf 'worktree=%s\nrange=%s\n' "$worktree" "$review_range"
+  exit 0
+fi
+
+cd "$worktree"
+exec nvim -c "CodeDiff $review_range"

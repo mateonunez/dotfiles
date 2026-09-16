@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -eu
+
+workspace_root=${STUDIOJIN_WORKSPACE_ROOT:-"$HOME/source/whatwapp/repositories/studiojin"}
+
+if ! command -v gwm >/dev/null 2>&1; then
+  echo "gwm-studiojin: gwm is not installed (brew install kbrdn1/tap/gwm)" >&2
+  exit 1
+fi
+
+if [ ! -d "$workspace_root" ]; then
+  echo "gwm-studiojin: workspace root does not exist: $workspace_root" >&2
+  exit 1
+fi
+
+exec gwm --workspace "$workspace_root" "$@"

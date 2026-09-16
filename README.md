@@ -109,6 +109,64 @@ $ ln -s ~/.somewhere/.config/nvim ~/.config/nvim
 
 > Back up your existing `~/.config/nvim` first. On first launch lazy.nvim installs every plugin (and Mason pulls the LSP/DAP/linter tools — give it a minute). `lazygit` and the `gh` CLI should be on your `PATH` for the git integrations.
 
+## 🌳 Git worktree workspace
+
+[`gwm`](https://github.com/kbrdn1/gwm-cli) provides a multi-repository TUI over
+the StudioJin repositories and every linked worktree, including worktrees
+created by external coding agents. The global configuration mirrors the
+Colemak `hnei` navigation used by Neovim, tmux, and lazygit.
+
+Install and link the versioned configuration:
+
+```bash
+brew install kbrdn1/tap/gwm
+mkdir -p ~/.config/gwm ~/.config/lazygit ~/.local/bin
+ln -s ~/.dotfiles/.config/gwm/config.toml ~/.config/gwm/config.toml
+ln -s ~/.dotfiles/.config/lazygit/config.yml ~/.config/lazygit/config.yml
+ln -s ~/.dotfiles/scripts/gwm-codediff ~/.local/bin/gwm-codediff
+ln -s ~/.dotfiles/scripts/gwm-studiojin ~/.local/bin/gwm-studiojin
+```
+
+Open the workspace:
+
+```bash
+gwm-studiojin
+```
+
+From Neovim, use `<leader>gw` or `:GwmStudiojin` to open the same workspace in
+a native floating terminal. Quit `gwm` with `q`; the terminal closes and focus
+returns to the editor.
+
+The default root is `~/source/whatwapp/repositories/studiojin`. Override it
+without editing the script:
+
+```bash
+STUDIOJIN_WORKSPACE_ROOT=/another/root gwm-studiojin
+```
+
+Useful bindings:
+
+- `n` / `e`: next / previous worktree (Colemak down / up)
+- `N`: create a worktree
+- `E`: rename the selected worktree
+- `Enter`: exit into the selected worktree
+- `l` / `L`: open lazygit in an overlay / fullscreen
+- `r` / `R`: review the selected branch with Neovim + CodeDiff
+- `t`: open the worktree in a tmux pane
+- `a`: inspect detected coding-agent sessions
+
+The CodeDiff launcher resolves the selected base and head to commit IDs before
+starting Neovim, then opens a PR-style three-dot comparison. Validate changes
+to the configuration with:
+
+```bash
+gwm config validate
+gwm-studiojin list
+```
+
+`gwm doctor` currently operates on one repository at a time; run it from the
+repository you want to diagnose.
+
 ---
 
 ## 📦 vscode
