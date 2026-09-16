@@ -112,10 +112,14 @@ $ ln -s ~/.somewhere/.config/nvim ~/.config/nvim
 ## 🌳 Git worktree workspace
 
 [`gwm`](https://github.com/kbrdn1/gwm-cli) provides a multi-repository TUI over
-configured source roots and every linked worktree, including worktrees created
-by external coding agents. The launcher recursively discovers repositories and
-projects them into the flat directory layout GWM expects. The source trees are
-never moved or modified. The global configuration mirrors the Colemak `hnei`
+curated workspaces and every linked worktree, including worktrees created by
+external coding agents. Existing VS Code `.code-workspace` files are the source
+of truth. The launcher materializes each manifest as a sibling directory of
+relative repository symlinks—the flat layout GWM expects—without moving or
+modifying source repositories.
+
+The compact, stacked TUI uses the same black/surface/amber/blue/green/red
+palette as tmux and Powerlevel10k. Its keymap mirrors the Colemak `hnei`
 navigation used by Neovim, tmux, and lazygit.
 
 Install and link the versioned configuration:
@@ -128,27 +132,35 @@ ln -s ~/.dotfiles/.config/gwm/workspaces ~/.config/gwm/workspaces
 ln -s ~/.dotfiles/.config/lazygit/config.yml ~/.config/lazygit/config.yml
 ln -s ~/.dotfiles/scripts/gwm-codediff ~/.local/bin/gwm-codediff
 ln -s ~/.dotfiles/scripts/gwm-workspace ~/.local/bin/gwm-workspace
-ln -s ~/.dotfiles/scripts/gwm-studiojin ~/.local/bin/gwm-studiojin
 ```
 
-Open a named workspace or any source root:
+List, synchronize, and open curated workspaces:
 
 ```bash
-gwm-workspace personal
-gwm-workspace whatwapp
-gwm-workspace ~/source/whatwapp/repositories/backend
+gwm-workspace list
+gwm-workspace sync --all
+gwm-workspace open studiojin
 ```
 
-Names and roots live in `~/.config/gwm/workspaces` as `name|root` entries. The
-versioned defaults include `personal`, `whatwapp`, and `studiojin`. Run
-`gwm-workspace --list-workspaces` to inspect them. With no argument, the CLI
-selects the most specific configured root containing the current directory.
+Workspace homes live in `~/.config/gwm/workspaces` as `scope|directory`
+entries. Each `<name>.code-workspace` manifest materializes as a sibling
+`<name>/` directory. Names can be qualified (`whatwapp/studiojin`) or short
+when unique (`studiojin`).
+
+Manage membership from the CLI:
+
+```bash
+gwm-workspace create personal/writing
+gwm-workspace add writing ~/source/mateonunez/website
+gwm-workspace repos writing
+gwm-workspace remove writing website
+```
 
 From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose a workspace and open
 it in a native floating terminal. A name or path may be passed directly with
-`:GwmWorkspace whatwapp`. Quit `gwm` with `q`; the terminal closes and focus
-returns to the editor. `:GwmStudiojin` and `gwm-studiojin` remain compatibility
-aliases.
+`:GwmWorkspace studiojin`. Use `:GwmWorkspaceAdd`, `:GwmWorkspaceRemove`,
+`:GwmWorkspaceSync`, and `:GwmWorkspaceEdit` to manage the selected workspace.
+Quit GWM with `q`; the terminal closes and focus returns to the editor.
 
 Set `GWM_WORKSPACES_FILE` to use a different workspace registry without editing
 the versioned defaults.
@@ -170,8 +182,8 @@ to the configuration with:
 
 ```bash
 gwm config validate
-gwm-workspace personal list
-gwm-workspace whatwapp list
+gwm-workspace list
+gwm-workspace open studiojin list
 ```
 
 `gwm doctor` currently operates on one repository at a time; run it from the

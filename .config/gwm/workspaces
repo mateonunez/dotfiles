@@ -1,6 +1,5 @@
-# name|root
-# Roots may contain repositories at any depth. Linked worktrees and dependency
-# caches are ignored while building the temporary GWM workspace projection.
-personal|~/source/mateonunez
-whatwapp|~/source/whatwapp/repositories
-studiojin|~/source/whatwapp/repositories/studiojin
+# scope|workspace home
+# Each *.code-workspace manifest in these directories materializes as a sibling
+# directory of repository symlinks for GWM.
+personal|~/source/mateonunez/workspaces
+whatwapp|~/source/whatwapp/repositories/workspaces

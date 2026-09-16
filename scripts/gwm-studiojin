@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -eu
-
-# Backward-compatible shortcut. New integrations should call gwm-workspace and
-# choose a configured workspace name or any directory path.
-exec gwm-workspace studiojin "$@"

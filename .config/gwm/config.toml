@@ -4,10 +4,32 @@
 auto_refresh_secs = 30
 clipboard = "tools"
 layout = "compact"
-sidebar_orientation = "side-by-side"
+sidebar_orientation = "stacked"
 sidebar_position = "right"
+dim_unfocused = true
 mux_open_in = "pane"
 mux_pane_direction = "right"
+
+# Match the restrained mateonunez.co palette used by tmux and the Zsh prompt.
+# Amber is reserved for focus and attention; blue marks staged/locked state;
+# green and red retain their conventional success/danger meaning.
+[theme]
+focus = "#f59e0b"
+accent = "#f59e0b"
+branch = "#00c758"
+clean = "#00c758"
+dirty = "#f59e0b"
+main = "#f59e0b"
+locked = "#3080ff"
+prunable = "#fb2c36"
+muted = "#9ca3af"
+selection_bg = "#1c1c1c"
+name = "#e5e7eb"
+path = "#9ca3af"
+staged = "#3080ff"
+modified = "#f59e0b"
+untracked = "#00c758"
+section_bg = "#1c1c1c"
 
 # gwm receives raw terminal keys, so mirror the Colemak navigation used by
 # Neovim, tmux, and lazygit. Actions displaced from n/e keep memorable
