@@ -156,11 +156,13 @@ gwm-workspace repos writing
 gwm-workspace remove writing website
 ```
 
-From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose a workspace and open
-it in a native floating terminal. A name or path may be passed directly with
-`:GwmWorkspace studiojin`. Use `:GwmWorkspaceAdd`, `:GwmWorkspaceRemove`,
-`:GwmWorkspaceSync`, and `:GwmWorkspaceEdit` to manage the selected workspace.
-Quit GWM with `q`; the terminal closes and focus returns to the editor.
+From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose either a curated
+workspace or one of the Git folders referenced by its manifests. Both open in a
+native floating terminal. `:GwmWorkspace studiojin` opens a workspace directly;
+`:GwmFolder [path]` opens one repository. Use `:GwmWorkspaceAdd`,
+`:GwmWorkspaceRemove`, `:GwmWorkspaceSync`, and `:GwmWorkspaceEdit` to manage
+the selected workspace. Quit GWM with `q`; the terminal closes and focus
+returns to the editor.
 
 Set `GWM_WORKSPACES_FILE` to use a different workspace registry without editing
 the versioned defaults.

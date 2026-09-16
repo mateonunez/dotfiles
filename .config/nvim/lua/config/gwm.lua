@@ -29,6 +29,7 @@ local function configured_workspaces()
     local name, count, manifest, directory = line:match("^([^\t]+)\t([^\t]+)\t([^\t]+)\t(.+)$")
     if name and directory then
       table.insert(workspaces, {
+        kind = "workspace",
         name = name,
         count = tonumber(count),
         manifest = manifest,
@@ -38,6 +39,27 @@ local function configured_workspaces()
   end
 
   return workspaces
+end
+
+local function configured_folders()
+  local lines = vim.fn.systemlist({ "gwm-workspace", "folders" })
+  if vim.v.shell_error ~= 0 then
+    return {}
+  end
+
+  local folders = {}
+  for _, line in ipairs(lines) do
+    local name, path = line:match("^([^\t]+)\t(.+)$")
+    if name and path then
+      table.insert(folders, { kind = "folder", name = name, path = path })
+    end
+  end
+
+  return folders
+end
+
+local function display_path(path)
+  return path:gsub("^" .. vim.pesc(vim.env.HOME), "~")
 end
 
 local function select_workspace(workspace, prompt, callback)
@@ -82,7 +104,7 @@ local function workspace_names()
   end, configured_workspaces())
 end
 
-local function open_terminal(workspace)
+local function open_terminal(target)
   if state.window and vim.api.nvim_win_is_valid(state.window) then
     vim.api.nvim_set_current_win(state.window)
     vim.cmd.startinsert()
@@ -103,7 +125,7 @@ local function open_terminal(workspace)
     col = math.floor((vim.o.columns - width) / 2),
     style = "minimal",
     border = "rounded",
-    title = (" gwm · %s "):format(workspace),
+    title = (" gwm · %s "):format(target.name),
     title_pos = "center",
   })
 
@@ -113,7 +135,9 @@ local function open_terminal(workspace)
   vim.bo[buffer].bufhidden = "wipe"
   vim.bo[buffer].filetype = "gwm"
 
-  local job = vim.fn.termopen({ "gwm-workspace", "open", workspace }, {
+  local command = target.kind == "folder" and { "gwm-workspace", "open-folder", target.path }
+    or { "gwm-workspace", "open", target.name }
+  local job = vim.fn.termopen(command, {
     on_exit = function(_, exit_code)
       vim.schedule(function()
         close_terminal()
@@ -139,8 +163,58 @@ function M.open(workspace)
     return
   end
 
-  select_workspace(workspace, "Open GWM workspace", function(choice)
-    open_terminal(choice.name)
+  if workspace and workspace ~= "" then
+    open_terminal({ kind = "workspace", name = workspace })
+    return
+  end
+
+  local targets = configured_workspaces()
+  vim.list_extend(targets, configured_folders())
+  if #targets == 0 then
+    vim.notify("No GWM folders or workspaces are configured", vim.log.levels.ERROR)
+    return
+  end
+
+  vim.ui.select(targets, {
+    prompt = "Open GWM folder or workspace",
+    format_item = function(item)
+      if item.kind == "workspace" then
+        return ("[workspace] %s  ·  %d repos"):format(item.name, item.count)
+      end
+      return ("[folder]    %s  ·  %s"):format(item.name, display_path(item.path))
+    end,
+  }, function(choice)
+    if choice then
+      open_terminal(choice)
+    end
+  end)
+end
+
+function M.open_folder(path)
+  if vim.fn.executable("gwm-workspace") ~= 1 then
+    vim.notify("gwm-workspace is not on PATH", vim.log.levels.ERROR)
+    return
+  end
+
+  if path and path ~= "" then
+    open_terminal({ kind = "folder", name = vim.fs.basename(path), path = path })
+    return
+  end
+
+  local folders = configured_folders()
+  if #folders == 0 then
+    vim.notify("No GWM folders are configured", vim.log.levels.ERROR)
+    return
+  end
+  vim.ui.select(folders, {
+    prompt = "Open GWM folder",
+    format_item = function(item)
+      return ("%s  ·  %s"):format(item.name, display_path(item.path))
+    end,
+  }, function(choice)
+    if choice then
+      open_terminal(choice)
+    end
   end)
 end
 
@@ -215,7 +289,15 @@ vim.api.nvim_create_user_command("GwmWorkspace", function(options)
 end, {
   nargs = "?",
   complete = workspace_names,
-  desc = "Choose and open a Git worktree workspace",
+  desc = "Choose and open a Git folder or worktree workspace",
+})
+
+vim.api.nvim_create_user_command("GwmFolder", function(options)
+  M.open_folder(options.args)
+end, {
+  nargs = "?",
+  complete = "dir",
+  desc = "Choose and open a Git folder with GWM",
 })
 
 vim.api.nvim_create_user_command("GwmWorkspaceAdd", function(options)
@@ -251,7 +333,7 @@ end, {
 })
 
 vim.keymap.set("n", "<leader>gw", M.open, {
-  desc = "Choose worktree workspace (gwm)",
+  desc = "Choose Git folder or workspace (gwm)",
 })
 
 return M

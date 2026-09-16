@@ -9,6 +9,8 @@ usage() {
   cat <<EOF
 usage: $program list [--format names|tsv]
        $program open <workspace> [gwm arguments...]
+       $program folders
+       $program open-folder <repository> [gwm arguments...]
        $program sync <workspace|--all>
        $program repos <workspace>
        $program create <scope/name>
@@ -267,6 +269,43 @@ list_repositories() {
   done < <(find "$WORKSPACE_DIRECTORY" -maxdepth 1 -type l -print0 | sort -z)
 }
 
+list_folders() {
+  local temporary id manifest directory manifest_dir folder_path target repo main_repo
+  temporary=$(mktemp "${TMPDIR:-/tmp}/gwm-workspace-folders.XXXXXX")
+
+  while IFS=$'\t' read -r id manifest directory; do
+    manifest_dir=${manifest%/*}
+    while IFS= read -r folder_path; do
+      if [[ $folder_path == /* ]]; then
+        target=$folder_path
+      else
+        target=$manifest_dir/$folder_path
+      fi
+      [[ -d $target ]] || continue
+      repo=$(git -C "$target" rev-parse --show-toplevel 2>/dev/null) || continue
+      main_repo=$(git -C "$repo" worktree list --porcelain | sed -n '1s/^worktree //p')
+      [[ -n $main_repo ]] || continue
+      repo=$(cd "$main_repo" && pwd -P)
+      printf '%s\n' "$repo" >> "$temporary"
+    done < <(jq -r '.folders[]?.path' "$manifest")
+  done < <(workspace_rows)
+
+  while IFS= read -r repo; do
+    [[ -n $repo ]] || continue
+    printf '%s\t%s\n' "${repo##*/}" "$repo"
+  done < <(sort -u "$temporary")
+  rm -f "$temporary"
+}
+
+open_folder() {
+  local requested=$1 repo
+  shift
+  repo=$(git -C "$requested" rev-parse --show-toplevel 2>/dev/null) || die "not inside a Git repository: $requested"
+  repo=$(cd "$repo" && pwd -P)
+  cd "$repo"
+  exec gwm "$@"
+}
+
 require_tools
 command=${1:-}
 [[ -n $command ]] || { usage; exit 2; }
@@ -289,6 +328,15 @@ case $command in
     resolve_workspace "$selector"
     sync_resolved_workspace >&2
     exec gwm --workspace "$WORKSPACE_DIRECTORY" "$@"
+    ;;
+  folders)
+    [[ $# -eq 0 ]] || die "folders accepts no arguments"
+    list_folders
+    ;;
+  open-folder)
+    [[ $# -ge 1 ]] || die "open-folder requires a repository"
+    command -v gwm >/dev/null 2>&1 || die "gwm is not installed (brew install kbrdn1/tap/gwm)"
+    open_folder "$@"
     ;;
   sync)
     [[ $# -eq 1 ]] || die "sync requires a workspace or --all"
