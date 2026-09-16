@@ -18,15 +18,33 @@ local function close_terminal()
   state.window = nil
 end
 
-function M.open()
+local function configured_workspaces()
+  local lines = vim.fn.systemlist({ "gwm-workspace", "--list-workspaces" })
+  if vim.v.shell_error ~= 0 then
+    return {}
+  end
+
+  local workspaces = {}
+  for _, line in ipairs(lines) do
+    local name, root = line:match("^([^\t]+)\t(.+)$")
+    if name and root then
+      table.insert(workspaces, { name = name, root = root })
+    end
+  end
+
+  return workspaces
+end
+
+local function workspace_names()
+  return vim.tbl_map(function(workspace)
+    return workspace.name
+  end, configured_workspaces())
+end
+
+local function open_terminal(workspace)
   if state.window and vim.api.nvim_win_is_valid(state.window) then
     vim.api.nvim_set_current_win(state.window)
     vim.cmd.startinsert()
-    return
-  end
-
-  if vim.fn.executable("gwm-studiojin") ~= 1 then
-    vim.notify("gwm-studiojin is not on PATH", vim.log.levels.ERROR)
     return
   end
 
@@ -44,7 +62,7 @@ function M.open()
     col = math.floor((vim.o.columns - width) / 2),
     style = "minimal",
     border = "rounded",
-    title = " gwm · StudioJin ",
+    title = (" gwm · %s "):format(workspace),
     title_pos = "center",
   })
 
@@ -54,12 +72,12 @@ function M.open()
   vim.bo[buffer].bufhidden = "wipe"
   vim.bo[buffer].filetype = "gwm"
 
-  local job = vim.fn.termopen({ "gwm-studiojin" }, {
+  local job = vim.fn.termopen({ "gwm-workspace", workspace }, {
     on_exit = function(_, exit_code)
       vim.schedule(function()
         close_terminal()
         if exit_code ~= 0 then
-          vim.notify(("gwm-studiojin exited with code %d"):format(exit_code), vim.log.levels.ERROR)
+          vim.notify(("gwm-workspace exited with code %d"):format(exit_code), vim.log.levels.ERROR)
         end
       end)
     end,
@@ -67,19 +85,58 @@ function M.open()
 
   if job <= 0 then
     close_terminal()
-    vim.notify("Failed to start gwm-studiojin", vim.log.levels.ERROR)
+    vim.notify("Failed to start gwm-workspace", vim.log.levels.ERROR)
     return
   end
 
   vim.cmd.startinsert()
 end
 
-vim.api.nvim_create_user_command("GwmStudiojin", M.open, {
-  desc = "Open the StudioJin worktree workspace",
+function M.open(workspace)
+  if vim.fn.executable("gwm-workspace") ~= 1 then
+    vim.notify("gwm-workspace is not on PATH", vim.log.levels.ERROR)
+    return
+  end
+
+  if workspace and workspace ~= "" then
+    open_terminal(workspace)
+    return
+  end
+
+  local workspaces = configured_workspaces()
+  if #workspaces == 0 then
+    vim.notify("No GWM workspaces are configured", vim.log.levels.ERROR)
+    return
+  end
+
+  vim.ui.select(workspaces, {
+    prompt = "GWM workspace",
+    format_item = function(item)
+      return ("%s  %s"):format(item.name, item.root)
+    end,
+  }, function(choice)
+    if choice then
+      open_terminal(choice.name)
+    end
+  end)
+end
+
+vim.api.nvim_create_user_command("GwmWorkspace", function(options)
+  M.open(options.args)
+end, {
+  nargs = "?",
+  complete = workspace_names,
+  desc = "Choose and open a Git worktree workspace",
+})
+
+vim.api.nvim_create_user_command("GwmStudiojin", function()
+  M.open("studiojin")
+end, {
+  desc = "Open the StudioJin worktree workspace (compatibility alias)",
 })
 
 vim.keymap.set("n", "<leader>gw", M.open, {
-  desc = "Worktree workspace (gwm)",
+  desc = "Choose worktree workspace (gwm)",
 })
 
 return M

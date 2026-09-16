@@ -1,0 +1,145 @@
+#!/bin/sh
+
+set -eu
+
+program=${0##*/}
+workspaces_file=${GWM_WORKSPACES_FILE:-"${XDG_CONFIG_HOME:-$HOME/.config}/gwm/workspaces"}
+
+usage() {
+  cat >&2 <<EOF
+usage: $program <workspace-name-or-root> [gwm arguments...]
+       $program --list-workspaces
+
+With no workspace argument, the most specific configured workspace containing
+the current directory is selected.
+EOF
+}
+
+expand_home() {
+  case $1 in
+    \~) printf '%s\n' "$HOME" ;;
+    \~/*) printf '%s/%s\n' "$HOME" "${1#\~/}" ;;
+    *) printf '%s\n' "$1" ;;
+  esac
+}
+
+list_workspaces() {
+  [ -f "$workspaces_file" ] || return 0
+
+  while IFS='|' read -r name root; do
+    case $name in
+      ""|'#'*) continue ;;
+    esac
+
+    [ -n "$root" ] || continue
+    root=$(expand_home "$root")
+    printf '%s\t%s\n' "$name" "$root"
+  done < "$workspaces_file"
+}
+
+configured_root() {
+  requested=$1
+  [ -f "$workspaces_file" ] || return 1
+
+  while IFS='|' read -r name root; do
+    [ "$name" = "$requested" ] || continue
+    [ -n "$root" ] || return 1
+    expand_home "$root"
+    return 0
+  done < "$workspaces_file"
+
+  return 1
+}
+
+infer_workspace() {
+  current=$(pwd -P)
+  best_root=
+
+  while IFS="$(printf '\t')" read -r _name root; do
+    [ -n "$root" ] || continue
+    [ -d "$root" ] || continue
+    root=$(cd "$root" && pwd -P)
+
+    case "$current/" in
+      "$root/"*)
+        if [ ${#root} -gt ${#best_root} ]; then
+          best_root=$root
+        fi
+        ;;
+    esac
+  done <<EOF
+$(list_workspaces)
+EOF
+
+  [ -n "$best_root" ] || return 1
+  printf '%s\n' "$best_root"
+}
+
+if [ "${1:-}" = "--list-workspaces" ]; then
+  list_workspaces
+  exit 0
+fi
+
+if ! command -v gwm >/dev/null 2>&1; then
+  echo "$program: gwm is not installed (brew install kbrdn1/tap/gwm)" >&2
+  exit 1
+fi
+
+if [ $# -eq 0 ]; then
+  workspace_root=$(infer_workspace || true)
+  if [ -z "$workspace_root" ]; then
+    usage
+    echo >&2
+    echo "$program: current directory is outside every configured workspace" >&2
+    exit 2
+  fi
+else
+  workspace=$1
+  shift
+  workspace_root=$(configured_root "$workspace" || expand_home "$workspace")
+fi
+
+if [ ! -d "$workspace_root" ]; then
+  echo "$program: workspace root does not exist: $workspace_root" >&2
+  exit 1
+fi
+
+workspace_root=$(cd "$workspace_root" && pwd -P)
+projection=$(mktemp -d "${TMPDIR:-/tmp}/gwm-workspace.XXXXXX")
+trap 'rm -rf "$projection"' EXIT HUP INT TERM
+
+repo_count=0
+while IFS= read -r git_dir; do
+  repo=${git_dir%/.git}
+  if [ "$repo" = "$workspace_root" ]; then
+    relative=${workspace_root##*/}
+  else
+    relative=${repo#"$workspace_root"/}
+  fi
+
+  link_name=$(printf '%s' "$relative" | sed 's#/#--#g')
+  if [ -e "$projection/$link_name" ] || [ -L "$projection/$link_name" ]; then
+    echo "$program: duplicate projection name: $relative" >&2
+    exit 1
+  fi
+
+  ln -s "$repo" "$projection/$link_name"
+  repo_count=$((repo_count + 1))
+done <<EOF
+$(find "$workspace_root" \
+  \( -type d \( \
+    -name node_modules -o \
+    -name .pnpm-store -o \
+    -name .worktrees -o \
+    -name .claude -o \
+    -name target \
+  \) -prune \) -o \
+  \( -type d -name .git -print -prune \))
+EOF
+
+if [ "$repo_count" -eq 0 ]; then
+  echo "$program: no Git repositories found under $workspace_root" >&2
+  exit 1
+fi
+
+gwm --workspace "$projection" "$@"

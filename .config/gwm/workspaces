@@ -1,0 +1,6 @@
+# name|root
+# Roots may contain repositories at any depth. Linked worktrees and dependency
+# caches are ignored while building the temporary GWM workspace projection.
+personal|~/source/mateonunez
+whatwapp|~/source/whatwapp/repositories
+studiojin|~/source/whatwapp/repositories/studiojin

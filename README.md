@@ -112,9 +112,11 @@ $ ln -s ~/.somewhere/.config/nvim ~/.config/nvim
 ## 🌳 Git worktree workspace
 
 [`gwm`](https://github.com/kbrdn1/gwm-cli) provides a multi-repository TUI over
-the StudioJin repositories and every linked worktree, including worktrees
-created by external coding agents. The global configuration mirrors the
-Colemak `hnei` navigation used by Neovim, tmux, and lazygit.
+configured source roots and every linked worktree, including worktrees created
+by external coding agents. The launcher recursively discovers repositories and
+projects them into the flat directory layout GWM expects. The source trees are
+never moved or modified. The global configuration mirrors the Colemak `hnei`
+navigation used by Neovim, tmux, and lazygit.
 
 Install and link the versioned configuration:
 
@@ -122,27 +124,34 @@ Install and link the versioned configuration:
 brew install kbrdn1/tap/gwm
 mkdir -p ~/.config/gwm ~/.config/lazygit ~/.local/bin
 ln -s ~/.dotfiles/.config/gwm/config.toml ~/.config/gwm/config.toml
+ln -s ~/.dotfiles/.config/gwm/workspaces ~/.config/gwm/workspaces
 ln -s ~/.dotfiles/.config/lazygit/config.yml ~/.config/lazygit/config.yml
 ln -s ~/.dotfiles/scripts/gwm-codediff ~/.local/bin/gwm-codediff
+ln -s ~/.dotfiles/scripts/gwm-workspace ~/.local/bin/gwm-workspace
 ln -s ~/.dotfiles/scripts/gwm-studiojin ~/.local/bin/gwm-studiojin
 ```
 
-Open the workspace:
+Open a named workspace or any source root:
 
 ```bash
-gwm-studiojin
+gwm-workspace personal
+gwm-workspace whatwapp
+gwm-workspace ~/source/whatwapp/repositories/backend
 ```
 
-From Neovim, use `<leader>gw` or `:GwmStudiojin` to open the same workspace in
-a native floating terminal. Quit `gwm` with `q`; the terminal closes and focus
-returns to the editor.
+Names and roots live in `~/.config/gwm/workspaces` as `name|root` entries. The
+versioned defaults include `personal`, `whatwapp`, and `studiojin`. Run
+`gwm-workspace --list-workspaces` to inspect them. With no argument, the CLI
+selects the most specific configured root containing the current directory.
 
-The default root is `~/source/whatwapp/repositories/studiojin`. Override it
-without editing the script:
+From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose a workspace and open
+it in a native floating terminal. A name or path may be passed directly with
+`:GwmWorkspace whatwapp`. Quit `gwm` with `q`; the terminal closes and focus
+returns to the editor. `:GwmStudiojin` and `gwm-studiojin` remain compatibility
+aliases.
 
-```bash
-STUDIOJIN_WORKSPACE_ROOT=/another/root gwm-studiojin
-```
+Set `GWM_WORKSPACES_FILE` to use a different workspace registry without editing
+the versioned defaults.
 
 Useful bindings:
 
@@ -161,7 +170,8 @@ to the configuration with:
 
 ```bash
 gwm config validate
-gwm-studiojin list
+gwm-workspace personal list
+gwm-workspace whatwapp list
 ```
 
 `gwm doctor` currently operates on one repository at a time; run it from the
