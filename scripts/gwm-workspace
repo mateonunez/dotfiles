@@ -7,18 +7,16 @@ registry=${GWM_WORKSPACES_FILE:-"${XDG_CONFIG_HOME:-$HOME/.config}/gwm/workspace
 
 usage() {
   cat <<EOF
-usage: $program list [--format names|tsv]
+usage: $program
+       $program list [--format names|tsv]
        $program open <workspace> [gwm arguments...]
-       $program folders
-       $program open-folder <repository> [gwm arguments...]
-       $program sync <workspace|--all>
        $program repos <workspace>
        $program create <scope/name>
        $program add <workspace> [repository]
        $program remove <workspace> <repository-name>
 
-Workspace manifests are <name>.code-workspace files. Their sibling <name>/
-directories are managed projections containing repository symlinks for GWM.
+With no arguments, GWM runs natively from the current directory. A managed
+workspace is a directory whose direct children are repository symlinks.
 EOF
 }
 
@@ -37,7 +35,7 @@ expand_home() {
 
 require_tools() {
   local tool
-  for tool in git jq perl; do
+  for tool in git perl; do
     command -v "$tool" >/dev/null 2>&1 || die "$tool is required"
   done
 }
@@ -60,36 +58,25 @@ workspace_homes() {
 }
 
 workspace_rows() {
-  local scope home manifest name
+  local scope home directory name
   while IFS=$'\t' read -r scope home; do
     [[ -d $home ]] || continue
-    while IFS= read -r -d '' manifest; do
-      name=${manifest##*/}
-      name=${name%.code-workspace}
-      printf '%s/%s\t%s\t%s\n' "$scope" "$name" "$manifest" "$home/$name"
-    done < <(find "$home" -maxdepth 1 -type f -name '*.code-workspace' -print0 | sort -z)
+    while IFS= read -r -d '' directory; do
+      name=${directory##*/}
+      printf '%s/%s\t%s\n' "$scope" "$name" "$directory"
+    done < <(find "$home" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
   done < <(workspace_homes)
 }
 
 resolve_workspace() {
-  local selector=$1 row id manifest directory matches=0
+  local selector=$1 row id directory matches=0
   WORKSPACE_ID=
-  WORKSPACE_MANIFEST=
   WORKSPACE_DIRECTORY=
 
-  if [[ $selector == *.code-workspace && -f $selector ]]; then
-    WORKSPACE_MANIFEST=$(cd "$(dirname "$selector")" && pwd -P)/$(basename "$selector")
-    WORKSPACE_ID=${selector##*/}
-    WORKSPACE_ID=${WORKSPACE_ID%.code-workspace}
-    WORKSPACE_DIRECTORY=${WORKSPACE_MANIFEST%.code-workspace}
-    return 0
-  fi
-
   while IFS= read -r row; do
-    IFS=$'\t' read -r id manifest directory <<< "$row"
+    IFS=$'\t' read -r id directory <<< "$row"
     if [[ $selector == "$id" || $selector == "${id#*/}" ]]; then
       WORKSPACE_ID=$id
-      WORKSPACE_MANIFEST=$manifest
       WORKSPACE_DIRECTORY=$directory
       matches=$((matches + 1))
     fi
@@ -99,25 +86,24 @@ resolve_workspace() {
   [[ $matches -eq 1 ]] || die "ambiguous workspace '$selector'; use its scope/name"
 }
 
+repository_count() {
+  find "$1" -mindepth 1 -maxdepth 1 -type l -print | wc -l | tr -d ' '
+}
+
 list_workspaces() {
-  local format=${1:-table} id manifest directory count state
+  local format=${1:-table} id directory count
   case $format in
     table|names|tsv) ;;
     *) die "unknown list format: $format" ;;
   esac
 
-  if [[ $format == table ]]; then
-    printf '%-28s %5s  %s\n' WORKSPACE REPOS DIRECTORY
-  fi
-
-  while IFS=$'\t' read -r id manifest directory; do
-    count=$(jq '.folders // [] | length' "$manifest")
-    state=$directory
-    [[ -d $directory ]] || state="$directory (not synced)"
+  [[ $format != table ]] || printf '%-42s %5s  %s\n' WORKSPACE REPOS DIRECTORY
+  while IFS=$'\t' read -r id directory; do
+    count=$(repository_count "$directory")
     case $format in
       names) printf '%s\n' "$id" ;;
-      tsv) printf '%s\t%s\t%s\t%s\n' "$id" "$count" "$manifest" "$directory" ;;
-      table) printf '%-28s %5s  %s\n' "$id" "$count" "$state" ;;
+      tsv) printf '%s\t%s\t%s\n' "$id" "$count" "$directory" ;;
+      table) printf '%-42s %5s  %s\n' "$id" "$count" "$directory" ;;
     esac
   done < <(workspace_rows)
 }
@@ -126,77 +112,13 @@ relative_path() {
   perl -MFile::Spec -e 'print File::Spec->abs2rel($ARGV[0], $ARGV[1])' "$1" "$2"
 }
 
-sync_resolved_workspace() {
-  local manifest_dir desired folder_name folder_path target repo link_name link_path relative
-  local linked=0 skipped=0
-  manifest_dir=${WORKSPACE_MANIFEST%/*}
-  mkdir -p "$WORKSPACE_DIRECTORY"
-  desired=$(mktemp "${TMPDIR:-/tmp}/gwm-workspace-links.XXXXXX")
-
-  while IFS=$'\t' read -r folder_path folder_name; do
-    [[ -n $folder_path ]] || continue
-    if [[ $folder_path == /* ]]; then
-      target=$folder_path
-    else
-      target=$manifest_dir/$folder_path
-    fi
-
-    if [[ ! -d $target ]]; then
-      echo "$program: warning: missing workspace folder: $folder_path" >&2
-      skipped=$((skipped + 1))
-      continue
-    fi
-
-    target=$(cd "$target" && pwd -P)
-    if ! repo=$(git -C "$target" rev-parse --show-toplevel 2>/dev/null); then
-      echo "$program: warning: not a Git repository: $target" >&2
-      skipped=$((skipped + 1))
-      continue
-    fi
-    repo=$(cd "$repo" && pwd -P)
-
-    link_name=${folder_name:-${repo##*/}}
-    link_name=${link_name//\//--}
-    [[ -n $link_name && $link_name != . && $link_name != .. ]] || die "invalid link name for $folder_path"
-    if grep -Fqx "$link_name" "$desired"; then
-      die "duplicate repository name '$link_name' in $WORKSPACE_ID; set a unique folder name"
-    fi
-    printf '%s\n' "$link_name" >> "$desired"
-
-    link_path=$WORKSPACE_DIRECTORY/$link_name
-    relative=$(relative_path "$repo" "$WORKSPACE_DIRECTORY")
-    if [[ -L $link_path ]]; then
-      if [[ $(readlink "$link_path") != "$relative" ]]; then
-        unlink "$link_path"
-        ln -s "$relative" "$link_path"
-      fi
-    elif [[ -e $link_path ]]; then
-      die "managed path is not a symlink: $link_path"
-    else
-      ln -s "$relative" "$link_path"
-    fi
-    linked=$((linked + 1))
-  done < <(jq -r '.folders[]? | [.path, (.name // "")] | @tsv' "$WORKSPACE_MANIFEST")
-
-  local existing existing_name
-  while IFS= read -r -d '' existing; do
-    existing_name=${existing##*/}
-    if ! grep -Fqx "$existing_name" "$desired"; then
-      unlink "$existing"
-    fi
-  done < <(find "$WORKSPACE_DIRECTORY" -maxdepth 1 -type l -print0)
-
-  rm -f "$desired"
-  printf '%s: %d repositories linked' "$WORKSPACE_ID" "$linked"
-  if [[ $skipped -gt 0 ]]; then
-    printf ', %d skipped' "$skipped"
-  fi
-  printf '\n'
-}
-
-sync_workspace() {
-  resolve_workspace "$1"
-  sync_resolved_workspace
+main_repository() {
+  local requested=$1 repo main_repo
+  repo=$(git -C "$requested" rev-parse --show-toplevel 2>/dev/null) || return 1
+  repo=$(cd "$repo" && pwd -P)
+  main_repo=$(git -C "$repo" worktree list --porcelain | sed -n '1s/^worktree //p')
+  [[ -n $main_repo ]] || return 1
+  cd "$main_repo" && pwd -P
 }
 
 create_workspace() {
@@ -210,8 +132,7 @@ create_workspace() {
     [[ $configured_scope == "$scope" ]] || continue
     found=1
     mkdir -p "$home"
-    [[ ! -e $home/$name.code-workspace && ! -e $home/$name ]] || die "workspace already exists: $selector"
-    printf '{\n  "folders": []\n}\n' > "$home/$name.code-workspace"
+    [[ ! -e $home/$name ]] || die "workspace already exists: $selector"
     mkdir "$home/$name"
     printf '%s\n' "$selector"
   done < <(workspace_homes)
@@ -220,97 +141,49 @@ create_workspace() {
 }
 
 add_repository() {
-  local selector=$1 requested_repo=${2:-$PWD} repo main_repo manifest_dir relative temporary existing_path existing_target
+  local selector=$1 requested_repo=${2:-$PWD} repo name link_path relative existing existing_target
   resolve_workspace "$selector"
-  repo=$(git -C "$requested_repo" rev-parse --show-toplevel 2>/dev/null) || die "not inside a Git repository: $requested_repo"
-  repo=$(cd "$repo" && pwd -P)
-  main_repo=$(git -C "$repo" worktree list --porcelain | sed -n '1s/^worktree //p')
-  [[ -n $main_repo ]] || die "cannot resolve the main worktree for: $repo"
-  repo=$(cd "$main_repo" && pwd -P)
-  manifest_dir=${WORKSPACE_MANIFEST%/*}
+  repo=$(main_repository "$requested_repo") || die "not inside a Git repository: $requested_repo"
 
-  while IFS= read -r existing_path; do
-    if [[ $existing_path == /* ]]; then
-      existing_target=$existing_path
-    else
-      existing_target=$manifest_dir/$existing_path
-    fi
-    if [[ -d $existing_target && $(cd "$existing_target" && pwd -P) == "$repo" ]]; then
-      die "repository is already in $WORKSPACE_ID: $repo"
-    fi
-  done < <(jq -r '.folders[]?.path' "$WORKSPACE_MANIFEST")
+  while IFS= read -r -d '' existing; do
+    existing_target=$(cd "$(dirname "$existing")/$(readlink "$existing")" && pwd -P)
+    [[ $existing_target != "$repo" ]] || die "repository is already in $WORKSPACE_ID: $repo"
+  done < <(find "$WORKSPACE_DIRECTORY" -mindepth 1 -maxdepth 1 -type l -print0)
 
-  relative=$(relative_path "$repo" "$manifest_dir")
-  temporary=$(mktemp "$manifest_dir/.${WORKSPACE_ID#*/}.XXXXXX")
-  jq --arg path "$relative" '.folders = ((.folders // []) + [{path: $path}])' "$WORKSPACE_MANIFEST" > "$temporary"
-  mv "$temporary" "$WORKSPACE_MANIFEST"
-  sync_resolved_workspace
+  name=${repo##*/}
+  link_path=$WORKSPACE_DIRECTORY/$name
+  [[ ! -e $link_path && ! -L $link_path ]] || die "workspace entry already exists: $link_path"
+  relative=$(relative_path "$repo" "$WORKSPACE_DIRECTORY")
+  ln -s "$relative" "$link_path"
+  printf '%s: added %s\n' "$WORKSPACE_ID" "$name"
 }
 
 remove_repository() {
-  local selector=$1 repository_name=$2 matches temporary
+  local selector=$1 repository_name=$2 link_path
   resolve_workspace "$selector"
-  matches=$(jq --arg name "$repository_name" '[.folders[]? | select((.name // (.path | split("/")[-1])) == $name)] | length' "$WORKSPACE_MANIFEST")
-  [[ $matches -gt 0 ]] || die "repository '$repository_name' is not in $WORKSPACE_ID"
-  [[ $matches -eq 1 ]] || die "repository name '$repository_name' is ambiguous in $WORKSPACE_ID"
-
-  temporary=$(mktemp "${WORKSPACE_MANIFEST%/*}/.${WORKSPACE_ID#*/}.XXXXXX")
-  jq --arg name "$repository_name" '.folders = [.folders[]? | select((.name // (.path | split("/")[-1])) != $name)]' "$WORKSPACE_MANIFEST" > "$temporary"
-  mv "$temporary" "$WORKSPACE_MANIFEST"
-  sync_resolved_workspace
+  link_path=$WORKSPACE_DIRECTORY/$repository_name
+  [[ -L $link_path ]] || die "repository '$repository_name' is not in $WORKSPACE_ID"
+  unlink "$link_path"
+  printf '%s: removed %s\n' "$WORKSPACE_ID" "$repository_name"
 }
 
 list_repositories() {
-  local selector=$1 link
+  local selector=$1 link target
   resolve_workspace "$selector"
-  sync_resolved_workspace >/dev/null
   while IFS= read -r -d '' link; do
-    printf '%s\t%s\n' "${link##*/}" "$(cd "$(dirname "$link")/$(readlink "$link")" && pwd -P)"
-  done < <(find "$WORKSPACE_DIRECTORY" -maxdepth 1 -type l -print0 | sort -z)
-}
-
-list_folders() {
-  local temporary id manifest directory manifest_dir folder_path target repo main_repo
-  temporary=$(mktemp "${TMPDIR:-/tmp}/gwm-workspace-folders.XXXXXX")
-
-  while IFS=$'\t' read -r id manifest directory; do
-    manifest_dir=${manifest%/*}
-    while IFS= read -r folder_path; do
-      if [[ $folder_path == /* ]]; then
-        target=$folder_path
-      else
-        target=$manifest_dir/$folder_path
-      fi
-      [[ -d $target ]] || continue
-      repo=$(git -C "$target" rev-parse --show-toplevel 2>/dev/null) || continue
-      main_repo=$(git -C "$repo" worktree list --porcelain | sed -n '1s/^worktree //p')
-      [[ -n $main_repo ]] || continue
-      repo=$(cd "$main_repo" && pwd -P)
-      printf '%s\n' "$repo" >> "$temporary"
-    done < <(jq -r '.folders[]?.path' "$manifest")
-  done < <(workspace_rows)
-
-  while IFS= read -r repo; do
-    [[ -n $repo ]] || continue
-    printf '%s\t%s\n' "${repo##*/}" "$repo"
-  done < <(sort -u "$temporary")
-  rm -f "$temporary"
-}
-
-open_folder() {
-  local requested=$1 repo
-  shift
-  repo=$(git -C "$requested" rev-parse --show-toplevel 2>/dev/null) || die "not inside a Git repository: $requested"
-  repo=$(cd "$repo" && pwd -P)
-  cd "$repo"
-  exec gwm "$@"
+    target=$(cd "$(dirname "$link")/$(readlink "$link")" && pwd -P)
+    printf '%s\t%s\n' "${link##*/}" "$target"
+  done < <(find "$WORKSPACE_DIRECTORY" -mindepth 1 -maxdepth 1 -type l -print0 | sort -z)
 }
 
 require_tools
-command=${1:-}
-[[ -n $command ]] || { usage; exit 2; }
-shift
+if [[ $# -eq 0 ]]; then
+  command -v gwm >/dev/null 2>&1 || die "gwm is not installed (brew install kbrdn1/tap/gwm)"
+  exec gwm
+fi
 
+command=$1
+shift
 case $command in
   list)
     format=table
@@ -326,27 +199,7 @@ case $command in
     shift
     command -v gwm >/dev/null 2>&1 || die "gwm is not installed (brew install kbrdn1/tap/gwm)"
     resolve_workspace "$selector"
-    sync_resolved_workspace >&2
     exec gwm --workspace "$WORKSPACE_DIRECTORY" "$@"
-    ;;
-  folders)
-    [[ $# -eq 0 ]] || die "folders accepts no arguments"
-    list_folders
-    ;;
-  open-folder)
-    [[ $# -ge 1 ]] || die "open-folder requires a repository"
-    command -v gwm >/dev/null 2>&1 || die "gwm is not installed (brew install kbrdn1/tap/gwm)"
-    open_folder "$@"
-    ;;
-  sync)
-    [[ $# -eq 1 ]] || die "sync requires a workspace or --all"
-    if [[ $1 == --all ]]; then
-      while IFS= read -r selector; do
-        sync_workspace "$selector"
-      done < <(list_workspaces names)
-    else
-      sync_workspace "$1"
-    fi
     ;;
   repos)
     [[ $# -eq 1 ]] || die "repos requires a workspace"

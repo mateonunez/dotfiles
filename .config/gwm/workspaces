@@ -1,5 +1,4 @@
 # scope|workspace home
-# Each *.code-workspace manifest in these directories materializes as a sibling
-# directory of repository symlinks for GWM.
+# Each direct child directory is a GWM workspace containing repository symlinks.
 personal|~/source/mateonunez/workspaces
 whatwapp|~/source/whatwapp/repositories/workspaces

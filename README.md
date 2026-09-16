@@ -113,10 +113,9 @@ $ ln -s ~/.somewhere/.config/nvim ~/.config/nvim
 
 [`gwm`](https://github.com/kbrdn1/gwm-cli) provides a multi-repository TUI over
 curated workspaces and every linked worktree, including worktrees created by
-external coding agents. Existing VS Code `.code-workspace` files are the source
-of truth. The launcher materializes each manifest as a sibling directory of
-relative repository symlinks—the flat layout GWM expects—without moving or
-modifying source repositories.
+external coding agents. Each workspace is a persistent directory of relative
+repository symlinks—the flat layout GWM expects. These directories are the
+source of truth; VS Code `.code-workspace` files are unrelated and ignored.
 
 The compact, stacked TUI uses the same black/surface/amber/blue/green/red
 palette as tmux and Powerlevel10k. Its keymap mirrors the Colemak `hnei`
@@ -134,17 +133,17 @@ ln -s ~/.dotfiles/scripts/gwm-codediff ~/.local/bin/gwm-codediff
 ln -s ~/.dotfiles/scripts/gwm-workspace ~/.local/bin/gwm-workspace
 ```
 
-List, synchronize, and open curated workspaces:
+List and open curated workspaces, or run GWM natively from the current folder:
 
 ```bash
+gwm-workspace
 gwm-workspace list
-gwm-workspace sync --all
 gwm-workspace open studiojin
 ```
 
 Workspace homes live in `~/.config/gwm/workspaces` as `scope|directory`
-entries. Each `<name>.code-workspace` manifest materializes as a sibling
-`<name>/` directory. Names can be qualified (`whatwapp/studiojin`) or short
+entries. Every direct child directory is a workspace whose children are
+repository symlinks. Names can be qualified (`whatwapp/studiojin`) or short
 when unique (`studiojin`).
 
 Manage membership from the CLI:
@@ -156,13 +155,12 @@ gwm-workspace repos writing
 gwm-workspace remove writing website
 ```
 
-From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose either a curated
-workspace or one of the Git folders referenced by its manifests. Both open in a
-native floating terminal. `:GwmWorkspace studiojin` opens a workspace directly;
-`:GwmFolder [path]` opens one repository. Use `:GwmWorkspaceAdd`,
-`:GwmWorkspaceRemove`, `:GwmWorkspaceSync`, and `:GwmWorkspaceEdit` to manage
-the selected workspace. Quit GWM with `q`; the terminal closes and focus
-returns to the editor.
+From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose between native GWM
+for the directory where Neovim was launched and one of the curated symlink
+workspaces. `:GwmWorkspace studiojin` opens a workspace directly;
+`:GwmFolder [path]` opens native GWM from the launch directory or an explicit
+folder. Use `:GwmWorkspaceAdd` and `:GwmWorkspaceRemove` to manage symlinks.
+Quit GWM with `q`; the terminal closes and focus returns to the editor.
 
 Set `GWM_WORKSPACES_FILE` to use a different workspace registry without editing
 the versioned defaults.
