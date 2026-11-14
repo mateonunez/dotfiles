@@ -1,0 +1,23 @@
+# mateonunez: the mateonunez.co palette, dark-first. Amber is focus and attention, as in tmux, gwm and the prompt.
+background = #0a0a0a
+foreground = #e5e7eb
+cursor-color = #f59e0b
+cursor-text = #0a0a0a
+selection-background = #262626
+selection-foreground = #e5e7eb
+palette = 0=#1c1c1c
+palette = 1=#fb2c36
+palette = 2=#00c758
+palette = 3=#f59e0b
+palette = 4=#3080ff
+palette = 5=#c084fc
+palette = 6=#22d3ee
+palette = 7=#e5e7eb
+palette = 8=#6b7280
+palette = 9=#ff6467
+palette = 10=#05df72
+palette = 11=#fcbb00
+palette = 12=#51a2ff
+palette = 13=#d8b4fe
+palette = 14=#67e8f9
+palette = 15=#f9fafb

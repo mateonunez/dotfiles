@@ -83,13 +83,17 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 
 - **Board:** `Ctrl + a + A`. Lanes grouped by what needs me, with a live preview; `n` `e` move, `i` jumps in, `h` closes.
 - **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle.
+- **Restore after tmux dies:** `Ctrl + a + R`, or `pitwall restore` from any terminal. The status line shows `↺ N` when lanes can come back.
+
+The status line leads with pitwall's segment: lanes that need me, then my Claude and Codex usage limits (`claude 7% 5h · 34% wk`), amber from 80% and with `⚠` when the week runs out before its reset.
 
 pitwall is private for now, so it is linked from a local checkout instead of installed by TPM:
 
 ```bash
 $ git clone https://github.com/mateonunez/pitwall ~/source/mateonunez/repositories/ai/pitwall
 $ ln -s ~/source/mateonunez/repositories/ai/pitwall ~/.tmux/plugins/pitwall
-$ ~/.tmux/plugins/pitwall/bin/pitwall install --write   # hooks for Claude Code and Codex
+$ ln -s ~/source/mateonunez/repositories/ai/pitwall/bin/pitwall ~/.local/bin/pitwall
+$ pitwall install --write   # hooks for Claude Code and Codex
 ```
 
 ### How to run it?
@@ -101,6 +105,16 @@ $ ln -s ~/.somewhere/.tmux.conf.local ~/.tmux.conf.local
 ```
 
 > Please backup your `~/.tmux.conf` and `~/.tmux.conf.local` files before running the previous commands.
+
+## 📦 Ghostty
+
+The `mateonunez` theme carries the mateonunez.co palette into the terminal: `#0a0a0a` background, Tailwind grays for text, an amber cursor, so tmux's status line and the terminal read as one surface.
+
+```bash
+$ mkdir -p ~/.config/ghostty
+$ ln -s ~/.dotfiles/.config/ghostty/themes ~/.config/ghostty/themes
+$ echo 'theme = dark:mateonunez,light:Catppuccin Latte' >> ~/.config/ghostty/config
+```
 
 ## 📦 nvim
 
