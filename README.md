@@ -77,6 +77,21 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 - j (y in qwerty): copy to the clipboard.
 - Ctrl + c: copy to the clipboard and exit the copy mode.
 
+### Agent lanes
+
+[pitwall](https://github.com/mateonunez/pitwall) shows what each coding agent in a window is doing right in the status line: `◆` waiting for me, `✓` finished while I was elsewhere, a spinner while it works.
+
+- **Board:** `Ctrl + a + A`. Lanes grouped by what needs me, with a live preview; `n` `e` move, `i` jumps in, `h` closes.
+- **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle.
+
+pitwall is private for now, so it is linked from a local checkout instead of installed by TPM:
+
+```bash
+$ git clone https://github.com/mateonunez/pitwall ~/source/mateonunez/repositories/ai/pitwall
+$ ln -s ~/source/mateonunez/repositories/ai/pitwall ~/.tmux/plugins/pitwall
+$ ~/.tmux/plugins/pitwall/bin/pitwall install --write   # hooks for Claude Code and Codex
+```
+
 ### How to run it?
 
 ```bash
