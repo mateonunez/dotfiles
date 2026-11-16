@@ -85,7 +85,7 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 - **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle.
 - **Restore after tmux dies:** `Ctrl + a + R`, or `pitwall restore` from any terminal. The status line shows `↺ N` when lanes can come back.
 
-The status line leads with pitwall's segment: lanes that need me, then my Claude and Codex usage limits (`claude 7% 5h · 34% wk`), amber from 80% and with `⚠` when the week runs out before its reset.
+The status line leads with pitwall's segment: lanes that need me (a `◆` turns red after ten minutes of waiting), then my Claude and Codex usage limits with the time left to each reset (`claude 5h 8% ↻4h · wk 34% ↻5d`), amber from 80% or when the week is on course to run out before its reset.
 
 pitwall is private for now, so it is linked from a local checkout instead of installed by TPM:
 
