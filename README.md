@@ -79,6 +79,8 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 
 ### Agent lanes
 
+<img width="820" alt="The pitwall board over the tabs layout: workspaces as tab groups on top, a filtered and selected list of agent lanes with a live preview of the one asking, and the usage limits and the Mac on the bottom rule." src="https://raw.githubusercontent.com/mateonunez/pitwall/main/preview/pitwall-board.png">
+
 [pitwall](https://github.com/mateonunez/pitwall) shows what each coding agent is doing: `◆` waiting for me, `✓` finished while I was elsewhere, a spinner while it works.
 
 - **Tabs on top:** each tmux session is a workspace pill with a count of who waits there; the one I am in opens into its windows, numbered and underlined in amber like a Chrome tab group.
