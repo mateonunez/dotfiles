@@ -236,7 +236,9 @@ tmux_conf_theme_right_separator_sub='\uE0B3'
 #     - #{username}
 #     - #{username_ssh}
 tmux_conf_theme_status_left=" ○ #S "
-tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized} | #{?battery_status,#{battery_status},}#{?battery_percentage, #{battery_percentage},} | %H:%M | %d %b , #{username}#{root} "
+# pitwall's segment (lanes that need me, lanes to restore, usage limits) leads; the mouse is always on, so no badge,
+# and the user name only matters over SSH.
+tmux_conf_theme_status_right=" #{prefix}#{pairing}#{synchronized}#{E:@pitwall-summary} | #{?battery_status,#{battery_status},}#{?battery_percentage, #{battery_percentage},} | %H:%M | %d %b #{username_ssh}#{root} "
 
 # status left style
 tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6"
@@ -396,6 +398,13 @@ set -g @thumbs-alphabet colemak-homerow
 # fuzzy finder for sessions/windows/panes — <prefix> + C-f
 set -g @plugin 'sainnhe/tmux-fzf'
 set -g @tmux-fzf-launch-key 'C-f'
+
+# agent lanes in the status line — <prefix> + A board, <prefix> + a next lane that needs you
+# local checkout, linked: ln -s ~/source/mateonunez/repositories/ai/pitwall ~/.tmux/plugins/pitwall
+set -g @plugin 'mateonunez/pitwall'
+# workspaces as tab groups on top; usage limits and the Mac (cpu, gpu, mem, disk, net, battery) on the bottom rule
+set -g @pitwall-layout tabs
+set -g @pitwall-system on
 
 # -- custom variables ----------------------------------------------------------
 

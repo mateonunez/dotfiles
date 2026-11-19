@@ -77,6 +77,30 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 - j (y in qwerty): copy to the clipboard.
 - Ctrl + c: copy to the clipboard and exit the copy mode.
 
+### Agent lanes
+
+<img width="820" alt="The pitwall board over the tabs layout: workspaces as tab groups on top, a filtered and selected list of agent lanes with a live preview of the one asking, and the usage limits and the Mac on the bottom rule." src="https://raw.githubusercontent.com/mateonunez/pitwall/main/preview/pitwall-board.png">
+
+[pitwall](https://github.com/mateonunez/pitwall) shows what each coding agent is doing: `◆` waiting for me, `✓` finished while I was elsewhere, a spinner while it works.
+
+- **Tabs on top:** each tmux session is a workspace pill with a count of who waits there; the one I am in opens into its windows, numbered and underlined in amber like a Chrome tab group.
+- **Data at the bottom:** the panes' bottom rule carries my Claude and Codex usage limits with the time to each reset (`claude 5h 8% ↻4h · wk 34% ↻5d`), then the Mac: cpu, gpu, memory, free disk, network, battery and the clock. A value turns amber only when it needs a look.
+- **Board:** `Ctrl + a + A`. Every lane with a live preview; `/` filters, `w` one workspace, `g` one row per workspace, `v` selects, `m` moves; `n` `e` move, `i` jumps in, `?` lists the keys.
+- **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle; a `◆` turns red after ten minutes of waiting.
+- **Workspaces:** `Ctrl + a + W` to go to one, create or rename it.
+- **Restore after tmux dies:** `Ctrl + a + R`, or `pitwall restore` from any terminal. `↺ N` on the tab bar when lanes can come back.
+
+Set in `.tmux.conf.local` with `@pitwall-layout tabs` and `@pitwall-system on`; `pitwall keys` prints every key.
+
+TPM installs pitwall like any plugin (`Ctrl + a + I`). I work on it, so here it is linked from a local checkout instead:
+
+```bash
+$ git clone https://github.com/mateonunez/pitwall ~/source/mateonunez/repositories/ai/pitwall
+$ ln -s ~/source/mateonunez/repositories/ai/pitwall ~/.tmux/plugins/pitwall
+$ ln -s ~/source/mateonunez/repositories/ai/pitwall/bin/pitwall ~/.local/bin/pitwall
+$ pitwall install --write   # hooks for Claude Code and Codex
+```
+
 ### How to run it?
 
 ```bash
@@ -86,6 +110,16 @@ $ ln -s ~/.somewhere/.tmux.conf.local ~/.tmux.conf.local
 ```
 
 > Please backup your `~/.tmux.conf` and `~/.tmux.conf.local` files before running the previous commands.
+
+## 📦 Ghostty
+
+The `mateonunez` theme carries the mateonunez.co palette into the terminal: `#0a0a0a` background, Tailwind grays for text, an amber cursor, so tmux's status line and the terminal read as one surface.
+
+```bash
+$ mkdir -p ~/.config/ghostty
+$ ln -s ~/.dotfiles/.config/ghostty/themes ~/.config/ghostty/themes
+$ echo 'theme = dark:mateonunez,light:Catppuccin Latte' >> ~/.config/ghostty/config
+```
 
 ## 📦 nvim
 
