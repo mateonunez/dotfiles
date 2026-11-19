@@ -79,13 +79,16 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 
 ### Agent lanes
 
-[pitwall](https://github.com/mateonunez/pitwall) shows what each coding agent in a window is doing right in the status line: `◆` waiting for me, `✓` finished while I was elsewhere, a spinner while it works.
+[pitwall](https://github.com/mateonunez/pitwall) shows what each coding agent is doing: `◆` waiting for me, `✓` finished while I was elsewhere, a spinner while it works.
 
-- **Board:** `Ctrl + a + A`. Lanes grouped by what needs me, with a live preview; `n` `e` move, `i` jumps in, `h` closes.
-- **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle.
-- **Restore after tmux dies:** `Ctrl + a + R`, or `pitwall restore` from any terminal. The status line shows `↺ N` when lanes can come back.
+- **Tabs on top:** each tmux session is a workspace pill with a count of who waits there; the one I am in opens into its windows, numbered and underlined in amber like a Chrome tab group.
+- **Data at the bottom:** the panes' bottom rule carries my Claude and Codex usage limits with the time to each reset (`claude 5h 8% ↻4h · wk 34% ↻5d`), then the Mac: cpu, gpu, memory, free disk, network, battery and the clock. A value turns amber only when it needs a look.
+- **Board:** `Ctrl + a + A`. Every lane with a live preview; `/` filters, `w` one workspace, `g` one row per workspace, `v` selects, `m` moves; `n` `e` move, `i` jumps in, `?` lists the keys.
+- **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle; a `◆` turns red after ten minutes of waiting.
+- **Workspaces:** `Ctrl + a + W` to go to one, create or rename it.
+- **Restore after tmux dies:** `Ctrl + a + R`, or `pitwall restore` from any terminal. `↺ N` on the tab bar when lanes can come back.
 
-The status line leads with pitwall's segment: lanes that need me (a `◆` turns red after ten minutes of waiting), then my Claude and Codex usage limits with the time left to each reset (`claude 5h 8% ↻4h · wk 34% ↻5d`), amber from 80% or when the week is on course to run out before its reset.
+Set in `.tmux.conf.local` with `@pitwall-layout tabs` and `@pitwall-system on`; `pitwall keys` prints every key.
 
 pitwall is private for now, so it is linked from a local checkout instead of installed by TPM:
 
