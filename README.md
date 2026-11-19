@@ -92,7 +92,7 @@ To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can naviga
 
 Set in `.tmux.conf.local` with `@pitwall-layout tabs` and `@pitwall-system on`; `pitwall keys` prints every key.
 
-pitwall is private for now, so it is linked from a local checkout instead of installed by TPM:
+TPM installs pitwall like any plugin (`Ctrl + a + I`). I work on it, so here it is linked from a local checkout instead:
 
 ```bash
 $ git clone https://github.com/mateonunez/pitwall ~/source/mateonunez/repositories/ai/pitwall
