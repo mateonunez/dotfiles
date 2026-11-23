@@ -57,7 +57,7 @@ compdef _gitswitch_completion gitswitch gswitch
 # segments (pyenv, nvm, etc.).  After sourcing this file you only need to add
 # `git_profile` to POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS in ~/.p10k.zsh.
 #
-# Color key: 214 = amber/orange  (matches the "whatwapp" brand colour in your
+# Color key: 214 = amber/orange  (matches the brand colour in your
 #             theme); 47 = bright-green; fallback is plain yellow (11).
 
 function prompt_git_profile() {

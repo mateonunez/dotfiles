@@ -1,4 +1,3 @@
 # scope|workspace home
 # Each direct child directory is a GWM workspace containing repository symlinks.
 personal|~/source/mateonunez/workspaces
-whatwapp|~/source/whatwapp/repositories/workspaces

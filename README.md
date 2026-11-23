@@ -118,7 +118,7 @@ The `mateonunez` theme carries the mateonunez.co palette into the terminal: `#0a
 ```bash
 $ mkdir -p ~/.config/ghostty
 $ ln -s ~/.dotfiles/.config/ghostty/themes ~/.config/ghostty/themes
-$ echo 'theme = dark:mateonunez,light:Catppuccin Latte' >> ~/.config/ghostty/config
+$ ln -s ~/.dotfiles/.config/ghostty/config.ghostty ~/.config/ghostty/config.ghostty
 ```
 
 ## 📦 nvim
@@ -158,27 +158,44 @@ navigation used by Neovim, tmux, and lazygit.
 Install and link the versioned configuration:
 
 ```bash
-brew install kbrdn1/tap/gwm
+brew install kbrdn1/tap/gwm lumen
 mkdir -p ~/.config/gwm ~/.config/lazygit ~/.local/bin
 ln -s ~/.dotfiles/.config/gwm/config.toml ~/.config/gwm/config.toml
 ln -s ~/.dotfiles/.config/gwm/workspaces ~/.config/gwm/workspaces
 ln -s ~/.dotfiles/.config/lazygit/config.yml ~/.config/lazygit/config.yml
 ln -s ~/.dotfiles/scripts/gwm-codediff ~/.local/bin/gwm-codediff
 ln -s ~/.dotfiles/scripts/gwm-workspace ~/.local/bin/gwm-workspace
+ln -s ~/.dotfiles/scripts/lumen-colemak ~/.local/bin/lumen-colemak
+lumen-colemak
 ```
+
+lumen hard-codes QWERTY `hjkl` and has no keymap config, so `lumen-colemak`
+builds the latest release (or a given tag) with `patches/lumen-colemak.patch`
+into `~/.local/bin`, ahead of Homebrew's copy. Re-run it after each lumen
+release. The patch follows the lazygit reassignments:
+
+| Action | lumen | Colemak |
+| --- | --- | --- |
+| down / up | `j` / `k` | `n` / `e` |
+| scroll right | `l` | `i` |
+| next / prev file | `ctrl+j` / `ctrl+k` | `ctrl+n` / `ctrl+e` |
+| next / prev commit (stacked) | `ctrl+l` / `ctrl+h` | `I` / `H` |
+| next / prev search match | `n` / `N` | `j` / `k` |
+| edit file, edit annotation | `e` | `E` |
+| annotate / all annotations | `i` / `I` | `a` / `A` |
 
 List and open curated workspaces, or run GWM natively from the current folder:
 
 ```bash
 gwm-workspace
 gwm-workspace list
-gwm-workspace open studiojin
+gwm-workspace open writing
 ```
 
 Workspace homes live in `~/.config/gwm/workspaces` as `scope|directory`
 entries. Every direct child directory is a workspace whose children are
-repository symlinks. Names can be qualified (`whatwapp/studiojin`) or short
-when unique (`studiojin`).
+repository symlinks. Names can be qualified (`personal/writing`) or short
+when unique (`writing`).
 
 Manage membership from the CLI:
 
@@ -191,7 +208,7 @@ gwm-workspace remove writing website
 
 From Neovim, use `<leader>gw` or `:GwmWorkspace` to choose between native GWM
 for the directory where Neovim was launched and one of the curated symlink
-workspaces. `:GwmWorkspace studiojin` opens a workspace directly;
+workspaces. `:GwmWorkspace writing` opens a workspace directly;
 `:GwmFolder [path]` opens native GWM from the launch directory or an explicit
 folder. Use `:GwmWorkspaceAdd` and `:GwmWorkspaceRemove` to manage symlinks.
 Quit GWM with `q`; the terminal closes and focus returns to the editor.
@@ -207,6 +224,7 @@ Useful bindings:
 - `Enter`: exit into the selected worktree
 - `l` / `L`: open lazygit in an overlay / fullscreen
 - `r` / `R`: review the selected branch with Neovim + CodeDiff
+- `u`: watch the selected worktree's uncommitted changes with [`lumen diff`](https://github.com/jnsahaj/lumen)
 - `t`: open the worktree in a tmux pane
 - `a`: inspect detected coding-agent sessions
 
@@ -217,7 +235,7 @@ to the configuration with:
 ```bash
 gwm config validate
 gwm-workspace list
-gwm-workspace open studiojin list
+gwm-workspace open writing list
 ```
 
 `gwm doctor` currently operates on one repository at a time; run it from the

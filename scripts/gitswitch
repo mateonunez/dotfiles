@@ -212,7 +212,6 @@ $(_bold PROFILES)
   Examples:
     ~/.gitconfig.personal
     ~/.gitconfig.work
-    ~/.gitconfig.whatwapp
 
 $(_bold EXAMPLES)
   $SCRIPT_NAME init

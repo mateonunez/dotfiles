@@ -18,6 +18,7 @@ The `nvim` configuration is built on [lazy.nvim](https://github.com/folke/lazy.n
         ├── mason.lua
         ├── conform.lua
         ├── harpoon.lua
+        ├── pitwall.lua           # agent lanes from tmux (plugin in the pitwall repo)
         ├── neo-tree.lua
         ├── autopairs.lua
         ├── surround.lua
@@ -148,6 +149,7 @@ Groups shown in the popup:
 | `<leader>x` | trouble / diagnostics |
 | `<leader>v` | debug (DAP) |
 | `<leader>m` | harpoon |
+| `<leader>p` | pitwall (agent lanes) |
 | `<leader>w` | window (splits) |
 | `<leader>t` | tabs |
 | `]` / `[` | next / prev |
@@ -310,6 +312,19 @@ Formatting via [conform.nvim](https://github.com/stevearc/conform.nvim), mirrori
 | `<leader>z` | Format buffer manually (`z` is not remapped in Colemak) |
 
 **Manual only** — there is no format-on-save (matches your VS Code `editor.formatOnSave: false`); run `<leader>z` to format. `:ConformInfo` shows the resolved formatters for the current buffer.
+
+---
+
+### pitwall
+
+The coding agents [pitwall](https://github.com/mateonunez/pitwall) tracks in tmux, from inside Neovim. The plugin ships in the pitwall repo (`lua/pitwall`) and loads only inside tmux. It drives the pitwall CLI, so it has no state of its own.
+
+| Key | Action |
+|-----|--------|
+| `<leader>pp` | Pick a lane (Telescope, with its screen as the preview): `⏎` goes to it in tmux, `<C-f>` opens its folder here (tab-local `cd`, then find files), `1` `2` `3` answer it when it asks (after a confirm) |
+| `<leader>pc` | `cd` this tab to a lane's folder, its worktree |
+
+The statusline shows `◆2 ✓1` in amber when lanes wait on you: two ask, one finished.
 
 ---
 
@@ -490,7 +505,7 @@ Git hunk decorations in the sign column. `<leader>h` prefix (`h` = hunk, not rem
 Local git is split across **gitsigns** (hunks/blame, above), **codediff**
 (diff/history/conflicts, below), and these tools:
 
-- [`gwm`](https://github.com/kbrdn1/gwm-cli) — multi-repository worktree and coding-agent workspace. `:GwmStudiojin` opens the StudioJin workspace in a native floating terminal; quitting `gwm` closes the float and restores editor focus. The launcher must be available as `gwm-studiojin` on `PATH`.
+- [`gwm`](https://github.com/kbrdn1/gwm-cli) — multi-repository worktree and coding-agent workspace. `:GwmWorkspace` opens a curated workspace in a native floating terminal; quitting `gwm` closes the float and restores editor focus. The `gwm-workspace` launcher must be on `PATH`.
 - [octo.nvim](https://github.com/pwntester/octo.nvim) — GitHub PRs / issues / reviews (your `vscode-pull-request-github`). Needs the authenticated `gh` CLI.
 - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim) — the `lazygit` TUI in a float for staging/commit/branch/rebase. As an external TUI it ignores Neovim's Colemak noremap, so navigation is set in lazygit's **own** config: [`.config/lazygit/config.yml`](../lazygit/config.yml) remaps it to `h`/`n`/`e`/`i` (and reassigns the `new`/`edit`/ignore actions those keys shadowed to `N`/`E`/`I`). **Needs `brew install lazygit`**, and the config symlinked into place:
   ```bash
@@ -500,7 +515,7 @@ Local git is split across **gitsigns** (hunks/blame, above), **codediff**
 
 | Key | Action |
 |-----|--------|
-| `<leader>gw` | StudioJin worktree workspace (`gwm`) |
+| `<leader>gw` | worktree workspace (`gwm`) |
 | `<leader>gg` | LazyGit (git client) |
 | `<leader>gp` / `<leader>gP` | GitHub: PR list / create PR |
 | `<leader>gi` | GitHub: issue list |
