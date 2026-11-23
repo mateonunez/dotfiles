@@ -17,6 +17,7 @@ return {
         { "<leader>r", group = "run / test" },
         { "<leader>x", group = "trouble / diagnostics" },
         { "<leader>m", group = "harpoon" },
+        { "<leader>p", group = "pitwall (agent lanes)" },
         { "<leader>w", group = "window (splits)" },
         { "<leader>t", group = "tabs" },
         { "<leader>s", group = "search / replace" },

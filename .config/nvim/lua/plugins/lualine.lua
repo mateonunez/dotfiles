@@ -62,6 +62,11 @@ return {
           { "filename", path = 1 },
         },
         lualine_x = {
+          { -- pitwall: agent lanes waiting on you (◆ asking, ✓ done), refreshed in the background
+            function() return require("pitwall").status() end,
+            cond  = function() return package.loaded.pitwall ~= nil end,
+            color = { fg = "#f59e0b" },
+          },
           {
             "diagnostics",
             symbols = { error = " ", warn = " ", info = " ", hint = " " },
