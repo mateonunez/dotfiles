@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -euo pipefail
+
+program=${0##*/}
+repository=https://github.com/jnsahaj/lumen
+patch="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/patches/lumen-colemak.patch"
+prefix=${LUMEN_COLEMAK_PREFIX:-"$HOME/.local/bin"}
+
+usage() {
+  cat <<EOF
+usage: $program [tag]
+
+Build lumen at <tag> (default: the latest release) with the Colemak hnei
+patch and install it as $prefix/lumen, ahead of Homebrew's copy on PATH.
+EOF
+}
+
+die() {
+  echo "$program: $*" >&2
+  exit 1
+}
+
+case ${1:-} in
+  -h|--help) usage; exit 0 ;;
+esac
+
+for tool in git cargo; do
+  command -v "$tool" >/dev/null 2>&1 || die "$tool is required"
+done
+[[ -f $patch ]] || die "patch not found: $patch"
+
+tag=${1:-$(git ls-remote --tags --refs "$repository" 'v*' | awk -F/ '{print $NF}' | sort -V | tail -1)}
+[[ -n $tag ]] || die "could not resolve the latest lumen release"
+
+workdir=$(mktemp -d)
+trap 'rm -rf "$workdir"' EXIT
+
+git clone --quiet --depth 1 --branch "$tag" "$repository" "$workdir/lumen"
+git -C "$workdir/lumen" apply --check "$patch" ||
+  die "patch no longer applies to $tag; refresh patches/lumen-colemak.patch"
+git -C "$workdir/lumen" apply "$patch"
+
+cargo build --release --locked --manifest-path "$workdir/lumen/Cargo.toml"
+
+mkdir -p "$prefix"
+install -m 755 "$workdir/lumen/target/release/lumen" "$prefix/lumen"
+echo "$program: installed $("$prefix/lumen" --version) (Colemak) at $prefix/lumen"

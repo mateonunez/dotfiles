@@ -10,6 +10,10 @@ dim_unfocused = true
 mux_open_in = "pane"
 mux_pane_direction = "right"
 
+# Macros run in the selected worktree. lumen shows the uncommitted working
+# tree and reloads it live; [review] below covers the committed branch range.
+macro1 = { command = "lumen diff --watch", open_in = "pty" }
+
 # Match the restrained mateonunez.co palette used by tmux and the Zsh prompt.
 # Amber is reserved for focus and attention; blue marks staged/locked state;
 # green and red retain their conventional success/danger meaning.
@@ -41,6 +45,8 @@ create = ["N"]
 edit_note = ["M"]
 edit_worktree = ["E"]
 exit_to_worktree = ["Enter"]
+# h is Colemak left; keep macros off the navigation cluster.
+macro_one = ["u"]
 
 [tui.keys.modal.create]
 prev_type = ["Up", "Left", "h"]

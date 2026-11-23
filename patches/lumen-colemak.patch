@@ -1,0 +1,364 @@
+diff --git a/src/command/diff/app.rs b/src/command/diff/app.rs
+index 5da64b4..bcdc609 100644
+--- a/src/command/diff/app.rs
++++ b/src/command/diff/app.rs
+@@ -551,7 +551,7 @@ fn run_app_internal(
+                             let key_style = Style::default().fg(t.ui.text_primary).bg(bg).bold();
+                             let desc_style = Style::default().fg(t.ui.text_muted).bg(bg);
+                             let tip_line = Line::from(vec![
+-                                Span::styled(" i", key_style),
++                                Span::styled(" a", key_style),
+                                 Span::styled(" annotate ", desc_style),
+                                 Span::styled("y", key_style),
+                                 Span::styled(" copy ", desc_style),
+@@ -1287,7 +1287,7 @@ fn run_app_internal(
+                                 state.focused_panel = FocusedPanel::DiffView;
+                             }
+                         }
+-                        KeyCode::Char('j') if key.modifiers.contains(KeyModifiers::CONTROL) => {
++                        KeyCode::Char('n') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                             if !state.file_diffs.is_empty() {
+                                 let mut next = state.sidebar_selected + 1;
+                                 while next < state.sidebar_visible_len() {
+@@ -1305,7 +1305,7 @@ fn run_app_internal(
+                                 }
+                             }
+                         }
+-                        KeyCode::Char('k') if key.modifiers.contains(KeyModifiers::CONTROL) => {
++                        KeyCode::Char('e') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                             if !state.file_diffs.is_empty() && state.sidebar_selected > 0 {
+                                 let mut prev = state.sidebar_selected - 1;
+                                 loop {
+@@ -1327,7 +1327,7 @@ fn run_app_internal(
+                             }
+                         }
+                         // Stacked mode: navigate to next commit
+-                        KeyCode::Char('l') if key.modifiers.contains(KeyModifiers::CONTROL) => {
++                        KeyCode::Char('I') => {
+                             if state.stacked_mode
+                                 && state.current_commit_index < state.stacked_commits.len() - 1
+                             {
+@@ -1336,7 +1336,7 @@ fn run_app_internal(
+                             }
+                         }
+                         // Stacked mode: navigate to previous commit
+-                        KeyCode::Char('h') if key.modifiers.contains(KeyModifiers::CONTROL) => {
++                        KeyCode::Char('H') => {
+                             if state.stacked_mode && state.current_commit_index > 0 {
+                                 let new_index = state.current_commit_index - 1;
+                                 navigate_stacked_commit(&mut state, new_index, &options, backend);
+@@ -1427,7 +1427,7 @@ fn run_app_internal(
+                                 );
+                             }
+                         }
+-                        KeyCode::Down | KeyCode::Char('j') => {
++                        KeyCode::Down | KeyCode::Char('n') => {
+                             if state.focused_panel == FocusedPanel::Sidebar {
+                                 if state.sidebar_selected + 1 < state.sidebar_visible_len() {
+                                     state.sidebar_selected += 1;
+@@ -1439,7 +1439,7 @@ fn run_app_internal(
+                                 state.scroll = (state.scroll + 1).min(max_scroll as u16);
+                             }
+                         }
+-                        KeyCode::Up | KeyCode::Char('k') => {
++                        KeyCode::Up | KeyCode::Char('e') => {
+                             if state.focused_panel == FocusedPanel::Sidebar {
+                                 if state.sidebar_selected > 0 {
+                                     state.sidebar_selected =
+@@ -1478,7 +1478,7 @@ fn run_app_internal(
+                                 state.sidebar_h_scroll = state.sidebar_h_scroll.saturating_sub(4);
+                             }
+                         }
+-                        KeyCode::Char('l') | KeyCode::Right => {
++                        KeyCode::Char('i') | KeyCode::Right => {
+                             let term_width = terminal.size()?.width;
+                             if state.focused_panel == FocusedPanel::DiffView && !state.settings.wrap
+                             {
+@@ -1750,7 +1750,7 @@ fn run_app_internal(
+                                 }
+                             }
+                         }
+-                        KeyCode::Char('i') => {
++                        KeyCode::Char('a') => {
+                             if !state.file_diffs.is_empty() {
+                                 let file_index = state.current_file;
+                                 let diff = &state.file_diffs[file_index];
+@@ -1847,7 +1847,7 @@ fn run_app_internal(
+                                 }
+                             }
+                         }
+-                        KeyCode::Char('I') => {
++                        KeyCode::Char('A') => {
+                             // Open annotations menu
+                             if !state.annotations.is_empty() {
+                                 let mut sorted_annotations = state.annotations.clone();
+@@ -1902,7 +1902,7 @@ fn run_app_internal(
+                                 }
+                             }
+                         }
+-                        KeyCode::Char('e') => {
++                        KeyCode::Char('E') => {
+                             if !state.file_diffs.is_empty() {
+                                 let _ = execute!(
+                                     terminal.backend_mut(),
+@@ -2000,7 +2000,7 @@ fn run_app_internal(
+                             );
+                             active_modal = Some(Modal::global_search("Search", gs));
+                         }
+-                        KeyCode::Char('n') if state.search_state.has_query() => {
++                        KeyCode::Char('j') if state.search_state.has_query() => {
+                             if let Some(line) = state.search_state.find_next() {
+                                 state.scroll = adjust_scroll_to_line(
+                                     line,
+@@ -2010,7 +2010,7 @@ fn run_app_internal(
+                                 );
+                             }
+                         }
+-                        KeyCode::Char('N') if state.search_state.has_query() => {
++                        KeyCode::Char('k') if state.search_state.has_query() => {
+                             if let Some(line) = state.search_state.find_prev() {
+                                 state.scroll = adjust_scroll_to_line(
+                                     line,
+@@ -2040,7 +2040,7 @@ fn run_app_internal(
+                                                 description: "Focus sidebar / diff",
+                                             },
+                                             KeyBind {
+-                                                key: "ctrl+j / ctrl+k",
++                                                key: "ctrl+n / ctrl+e",
+                                                 description: "Next / previous file",
+                                             },
+                                             KeyBind {
+@@ -2060,7 +2060,7 @@ fn run_app_internal(
+                                                 description: "Copy current filename",
+                                             },
+                                             KeyBind {
+-                                                key: "e",
++                                                key: "E",
+                                                 description: "Edit file (at hunk line if focused)",
+                                             },
+                                             KeyBind {
+@@ -2068,7 +2068,7 @@ fn run_app_internal(
+                                                 description: "Open file in browser (PR mode)",
+                                             },
+                                             KeyBind {
+-                                                key: "ctrl+l / ctrl+h",
++                                                key: "I / H",
+                                                 description: "Next / prev commit (stacked)",
+                                             },
+                                             KeyBind {
+@@ -2081,11 +2081,11 @@ fn run_app_internal(
+                                         title: "Sidebar",
+                                         bindings: vec![
+                                             KeyBind {
+-                                                key: "j/k or up/down",
++                                                key: "n/e or up/down",
+                                                 description: "Navigate files",
+                                             },
+                                             KeyBind {
+-                                                key: "h/l or left/right",
++                                                key: "h/i or left/right",
+                                                 description: "Scroll horizontally",
+                                             },
+                                             KeyBind {
+@@ -2103,11 +2103,11 @@ fn run_app_internal(
+                                         title: "Diff View",
+                                         bindings: vec![
+                                             KeyBind {
+-                                                key: "j/k or up/down",
++                                                key: "n/e or up/down",
+                                                 description: "Scroll vertically",
+                                             },
+                                             KeyBind {
+-                                                key: "h/l or left/right",
++                                                key: "h/i or left/right",
+                                                 description: "Scroll horizontally",
+                                             },
+                                         KeyBind {
+@@ -2160,11 +2160,11 @@ fn run_app_internal(
+                                                 description: "Global fuzzy search (all files, with preview)",
+                                             },
+                                             KeyBind {
+-                                                key: "n or down",
++                                                key: "j",
+                                                 description: "Next match (in-file)",
+                                             },
+                                             KeyBind {
+-                                                key: "N or up",
++                                                key: "k",
+                                                 description: "Previous match (in-file)",
+                                             },
+                                             KeyBind {
+@@ -2181,11 +2181,11 @@ fn run_app_internal(
+                                                 description: "Copy selection (or filename)",
+                                             },
+                                             KeyBind {
+-                                                key: "i",
++                                                key: "a",
+                                                 description: "Annotate selection / hunk / file",
+                                             },
+                                             KeyBind {
+-                                                key: "I",
++                                                key: "A",
+                                                 description: "View all annotations",
+                                             },
+                                             KeyBind {
+diff --git a/src/command/diff/render/diff_view.rs b/src/command/diff/render/diff_view.rs
+index 79f6e24..3238057 100644
+--- a/src/command/diff/render/diff_view.rs
++++ b/src/command/diff/render/diff_view.rs
+@@ -177,8 +177,8 @@ fn render_stacked_header(
+         + id_label.len()
+         + 2
+         + truncated_msg.chars().count();
+-    // " ‹ " + " ctrl+h " = 12 chars, same for right side
+-    let side_width = 12;
++    // " ‹ " + " H " = 6 chars, same for right side
++    let side_width = 6;
+ 
+     let total_content_width = side_width * 2 + center_width;
+     let total_padding = (area.width as usize).saturating_sub(total_content_width);
+@@ -189,7 +189,7 @@ fn render_stacked_header(
+     let mut spans = vec![
+         // Left side: arrow and hint
+         Span::styled(" ‹ ", left_style),
+-        Span::styled(" ctrl+h ", dimmed_style),
++        Span::styled(" H ", dimmed_style),
+         // Left padding
+         Span::styled(" ".repeat(left_padding), Style::default().bg(bg)),
+     ];
+@@ -202,7 +202,7 @@ fn render_stacked_header(
+         " ".repeat(right_padding),
+         Style::default().bg(bg),
+     ));
+-    spans.push(Span::styled(" ctrl+l ", dimmed_style));
++    spans.push(Span::styled(" I ", dimmed_style));
+     spans.push(Span::styled(" › ", right_style));
+ 
+     let header = Paragraph::new(Line::from(spans)).style(Style::default().bg(bg));
+diff --git a/src/command/diff/render/footer.rs b/src/command/diff/render/footer.rs
+index 47610cb..4b57f58 100644
+--- a/src/command/diff/render/footer.rs
++++ b/src/command/diff/render/footer.rs
+@@ -228,7 +228,7 @@ pub fn render_footer(frame: &mut Frame, footer_area: Rect, data: FooterData) {
+                     Style::default().fg(t.ui.highlight).bg(bg),
+                 ),
+                 Span::styled(
+-                    " n/N navigate ",
++                    " j/k navigate ",
+                     Style::default().fg(t.ui.text_muted).bg(bg),
+                 ),
+             ]
+diff --git a/src/command/diff/render/modal.rs b/src/command/diff/render/modal.rs
+index b2c8fc2..7172bae 100644
+--- a/src/command/diff/render/modal.rs
++++ b/src/command/diff/render/modal.rs
+@@ -881,7 +881,7 @@ impl Modal {
+                 Span::styled("enter", Style::default().fg(t.ui.text_muted)),
+                 Span::styled(" jump  ", Style::default().fg(t.ui.text_muted)),
+                 Span::styled("│  ", Style::default().fg(t.ui.border_unfocused)),
+-                Span::styled("e", Style::default().fg(t.ui.text_muted)),
++                Span::styled("E", Style::default().fg(t.ui.text_muted)),
+                 Span::styled(" edit  ", Style::default().fg(t.ui.text_muted)),
+                 Span::styled("│  ", Style::default().fg(t.ui.border_unfocused)),
+                 Span::styled("d", Style::default().fg(t.ui.text_muted)),
+@@ -1054,13 +1054,13 @@ impl Modal {
+             ModalContent::Select {
+                 items, selected, ..
+             } => match key.code {
+-                KeyCode::Down | KeyCode::Char('j') => {
++                KeyCode::Down | KeyCode::Char('n') => {
+                     if *selected < items.len().saturating_sub(1) {
+                         *selected += 1;
+                     }
+                     None
+                 }
+-                KeyCode::Up | KeyCode::Char('k') => {
++                KeyCode::Up | KeyCode::Char('e') => {
+                     *selected = selected.saturating_sub(1);
+                     None
+                 }
+@@ -1077,11 +1077,11 @@ impl Modal {
+ 
+                 match key.code {
+                     KeyCode::Enter => Some(ModalResult::Dismissed),
+-                    KeyCode::Down | KeyCode::Char('j') => {
++                    KeyCode::Down | KeyCode::Char('n') => {
+                         *scroll = (*scroll + 1).min(max_scroll);
+                         None
+                     }
+-                    KeyCode::Up | KeyCode::Char('k') => {
++                    KeyCode::Up | KeyCode::Char('e') => {
+                         *scroll = scroll.saturating_sub(1);
+                         None
+                     }
+@@ -1119,7 +1119,7 @@ impl Modal {
+                 KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                     Some(ModalResult::Dismissed)
+                 }
+-                KeyCode::Down | KeyCode::Char('j')
++                KeyCode::Down | KeyCode::Char('n')
+                     if key.modifiers.contains(KeyModifiers::CONTROL)
+                         || key.code == KeyCode::Down =>
+                 {
+@@ -1128,18 +1128,12 @@ impl Modal {
+                     }
+                     None
+                 }
+-                KeyCode::Up | KeyCode::Char('k')
++                KeyCode::Up | KeyCode::Char('e')
+                     if key.modifiers.contains(KeyModifiers::CONTROL) || key.code == KeyCode::Up =>
+                 {
+                     *selected = selected.saturating_sub(1);
+                     None
+                 }
+-                KeyCode::Char('n') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+-                    if *selected < filtered_indices.len().saturating_sub(1) {
+-                        *selected += 1;
+-                    }
+-                    None
+-                }
+                 KeyCode::Char('p') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                     *selected = selected.saturating_sub(1);
+                     None
+@@ -1254,13 +1248,13 @@ impl Modal {
+                         {
+                             Some(ModalResult::Dismissed)
+                         }
+-                        KeyCode::Down | KeyCode::Char('j') => {
++                        KeyCode::Down | KeyCode::Char('n') => {
+                             if *selected < items.len().saturating_sub(1) {
+                                 *selected += 1;
+                             }
+                             None
+                         }
+-                        KeyCode::Up | KeyCode::Char('k') => {
++                        KeyCode::Up | KeyCode::Char('e') => {
+                             *selected = selected.saturating_sub(1);
+                             None
+                         }
+@@ -1269,7 +1263,7 @@ impl Modal {
+                                 annotation_id: ann.id,
+                             }
+                         }),
+-                        KeyCode::Char('e') => annotations.get(*selected).map(|ann| {
++                        KeyCode::Char('E') => annotations.get(*selected).map(|ann| {
+                             ModalResult::AnnotationEdit {
+                                 annotation_id: ann.id,
+                             }
+@@ -1300,12 +1294,12 @@ impl Modal {
+                 let cmd = key.modifiers.contains(KeyModifiers::SUPER)
+                     || key.modifiers.contains(KeyModifiers::META);
+ 
+-                // "Next/prev result" — ↓ / Ctrl+n / Ctrl+j (all telescope-standard).
++                // "Next result" — ↓ / Ctrl+n (Colemak: Ctrl+j moved to Ctrl+n).
+                 let is_down = matches!(key.code, KeyCode::Down)
+-                    || (ctrl && matches!(key.code, KeyCode::Char('n') | KeyCode::Char('j')));
+-                // "Prev result" — ↑ / Ctrl+p / Ctrl+k.
++                    || (ctrl && matches!(key.code, KeyCode::Char('n')));
++                // "Prev result" — ↑ / Ctrl+p / Ctrl+e.
+                 let is_up = matches!(key.code, KeyCode::Up)
+-                    || (ctrl && matches!(key.code, KeyCode::Char('p') | KeyCode::Char('k')));
++                    || (ctrl && matches!(key.code, KeyCode::Char('p') | KeyCode::Char('e')));
+                 // Half-page down — PageDown / Ctrl+d. (Ctrl+u is taken by clear-query.)
+                 let is_page_down =
+                     matches!(key.code, KeyCode::PageDown) || (ctrl && matches!(key.code, KeyCode::Char('d')));
