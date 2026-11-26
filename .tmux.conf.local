@@ -399,12 +399,16 @@ set -g @thumbs-alphabet colemak-homerow
 set -g @plugin 'sainnhe/tmux-fzf'
 set -g @tmux-fzf-launch-key 'C-f'
 
-# agent lanes in the status line — <prefix> + A board, <prefix> + a next lane that needs you
+# agent lanes in the status line — <prefix> + Space / t dashboard, <prefix> + a next lane that needs you
 # local checkout, linked: ln -s ~/source/mateonunez/repositories/ai/pitwall ~/.tmux/plugins/pitwall
 set -g @plugin 'mateonunez/pitwall'
 # workspaces as tab groups on top; usage limits and the Mac (cpu, gpu, mem, disk, net, battery) on the bottom rule
 set -g @pitwall-layout tabs
 set -g @pitwall-system on
+# Bind both on reload too: the base config assigns Space to previous-window, and t replaces the clock.
+# Match Pitwall's popup position, including its workaround for a top status bar in tmux 3.7c.
+bind -N "pitwall: open the dashboard" Space display-popup -E -w 84% -h 78% -y '#{?#{&&:#{==:#{version},3.7c},#{!=:#{status},off},#{==:#{status-position},top}},0,#{popup_centre_y}}' -b rounded -S "fg=#404040" 'env PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" bash "$HOME/.tmux/plugins/pitwall/bin/pitwall-dash"'
+bind -N "pitwall: open the dashboard" t display-popup -E -w 84% -h 78% -y '#{?#{&&:#{==:#{version},3.7c},#{!=:#{status},off},#{==:#{status-position},top}},0,#{popup_centre_y}}' -b rounded -S "fg=#404040" 'env PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" bash "$HOME/.tmux/plugins/pitwall/bin/pitwall-dash"'
 
 # -- custom variables ----------------------------------------------------------
 
