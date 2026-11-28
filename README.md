@@ -40,25 +40,24 @@ $ mkdir ~/.vim/undo
 
 I really love [tmux](https://github.com/tmux/tmux), it's a great tool for managing your terminal sessions. I've created a basic configuration file for it, based on [oh-my-tmux](https://github.com/gpakosz/.tmux) and of course, with the Colemak keybindings (it uses the `vi navigation` to walk on the file).
 
-> **Prefix key:** `Ctrl + a`
+The tmux prefix is `Ctrl-t`. Press the prefix, then the key below.
 
-### Panel navigation
+### Navigation
 
-The panel navigation follows my default Colemak keybindings, so you can navigate through the panels with `hnei` keys.
+| Key after `Ctrl-t` | Action |
+| --- | --- |
+| `h` / `n` / `e` / `i` | Focus the pane to the left / below / above / right |
+| `H` / `N` / `E` / `I` | Resize the pane to the left / down / up / right |
+| `Ctrl-n` / `Ctrl-e` | Previous / next tab |
+| `Ctrl-h` / `Ctrl-i` | Previous / next workspace |
+| `l` | Return to the last active tab |
+| `Shift-Tab` | Return to the last active workspace |
 
-- **Focus right panel:** `Ctrl + a + i`
-- **Focus left panel:** `Ctrl + a + h`
-- **Focus top panel:** `Ctrl + a + n`
-- **Focus bottom panel:** `Ctrl + a + e`
+Workspace navigation follows the Pitwall bar when Automanaged is enabled and tmux session order otherwise. `Tab` shares the next-workspace shortcut so `Ctrl-i` works in terminals that send both keys as Tab.
 
-### Panel resizing
+![Synthetic tmux session with Working expanded while Review is selected](assets/tmux-navigation.png)
 
-Also, you can resize the panels with `HNEI` keys.
-
-- **Resize to the right:** `Ctrl + a + Shift + i (or I)`
-- **Resize to the left:** `Ctrl + a + Shift + h (or H)`
-- **Resize to the top:** `Ctrl + a + Shift + n (or N)`
-- **Resize to the bottom:** `Ctrl + a + Shift + e (or E)`
+[Watch the navigation demo (MP4)](assets/tmux-navigation.mp4)
 
 ### Copy mode
 
@@ -72,32 +71,28 @@ The copy mode is based on the `vi navigation`, so you can navigate through the t
 
 > For Linux and macOS, you can install the `reattach-to-user-namespace` package with `brew install reattach-to-user-namespace` or `sudo apt install reattach-to-user-namespace` and switch to the right program in the configuration file.
 
-To trigger the copy mode, you have to press `Ctrl + a + [`. Then, you can navigate through the text with `hnei` keys and select the text with `v` key. Once you've selected the text, you can copy it with:
+Press `Ctrl-t`, then `[` to enter copy mode. Move with `hnei` and select text with `v`. To copy the selection use one of these keys.
 
 - j (y in qwerty): copy to the clipboard.
 - Ctrl + c: copy to the clipboard and exit the copy mode.
 
 ### Agent lanes
 
-<img width="820" alt="The pitwall board over the tabs layout: workspaces as tab groups on top, a filtered and selected list of agent lanes with a live preview of the one asking, and the usage limits and the Mac on the bottom rule." src="https://raw.githubusercontent.com/mateonunez/pitwall/main/preview/pitwall-board.png">
-
 [pitwall](https://github.com/mateonunez/pitwall) shows what each coding agent is doing: `◆` waiting for me, `✓` finished while I was elsewhere, a spinner while it works.
 
-- **Tabs on top:** each tmux session is a workspace pill with a count of who waits there; the one I am in opens into its windows, numbered and underlined in amber like a Chrome tab group.
-- **Data at the bottom:** the panes' bottom rule carries my Claude and Codex usage limits with the time to each reset (`claude 5h 8% ↻4h · wk 34% ↻5d`), then the Mac: cpu, gpu, memory, free disk, network, battery and the clock. A value turns amber only when it needs a look.
-- **Board:** `Ctrl + a + A`. Every lane with a live preview; `/` filters, `w` one workspace, `g` one row per workspace, `v` selects, `m` moves; `n` `e` move, `i` jumps in, `?` lists the keys.
-- **Next lane that needs me:** `Ctrl + a + a`. Press again to cycle; a `◆` turns red after ten minutes of waiting.
-- **Workspaces:** `Ctrl + a + W` to go to one, create or rename it.
-- **Restore after tmux dies:** `Ctrl + a + R`, or `pitwall restore` from any terminal. `↺ N` on the tab bar when lanes can come back.
+- **Tabs** expand the selected workspace. With Automanaged, Working stays expanded and Needs you leads the bar when it has a tab.
+- **Dashboard** opens with `Ctrl-t`, then `Space` or `t`. Start typing to find a lane or workspace. Use `Ctrl-n/e` to move through results and `Enter` to open one.
+- **Next lane that needs me** opens with `Ctrl-t`, then `a`. Press it again to cycle through lanes that need attention.
+- **Restore** opens with `Ctrl-t`, then `R`. You can also run `pitwall restore` from a terminal.
 
-Set in `.tmux.conf.local` with `@pitwall-layout tabs` and `@pitwall-system on`; `pitwall keys` prints every key.
+`.tmux.conf.local` enables the Tabs layout and system metrics. Turn on Automanaged in **Settings → Feature Preview**. Run `pitwall keys` for the full list of dashboard shortcuts.
 
-TPM installs pitwall like any plugin (`Ctrl + a + I`). I work on it, so here it is linked from a local checkout instead:
+TPM can install Pitwall. This is how to link a local checkout instead.
 
 ```bash
-$ git clone https://github.com/mateonunez/pitwall ~/source/mateonunez/repositories/ai/pitwall
-$ ln -s ~/source/mateonunez/repositories/ai/pitwall ~/.tmux/plugins/pitwall
-$ ln -s ~/source/mateonunez/repositories/ai/pitwall/bin/pitwall ~/.local/bin/pitwall
+$ git clone https://github.com/mateonunez/pitwall ~/src/pitwall
+$ ln -s ~/src/pitwall ~/.tmux/plugins/pitwall
+$ ln -s ~/src/pitwall/bin/pitwall ~/.local/bin/pitwall
 $ pitwall install --write   # hooks for Claude Code and Codex
 ```
 
